@@ -1,0 +1,47 @@
+{
+  "name": "pkg-skills",
+  "version": "0.1.0",
+  "description": "Suggests and manages React Native agent skills based on project dependencies.",
+  "type": "module",
+  "author": {
+    "name": "Callstack",
+    "email": "hello@callstack.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/callstackincubator/agent-skills.git",
+    "directory": "packages/pkg-skills"
+  },
+  "homepage": "https://github.com/callstackincubator/agent-skills/tree/main/packages/pkg-skills",
+  "bugs": {
+    "url": "https://github.com/callstackincubator/agent-skills/issues"
+  },
+  "bin": {
+    "pkg-skills": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "dependencies": {
+    "@clack/prompts": "^1.1.0",
+    "colorette": "^2.0.20",
+    "vitest": "^4.1.5",
+    "zod": "^4.3.6"
+  },
+  "scripts": {
+    "build": "mkdir -p dist && npx tsc --project tsconfig.build.json",
+    "prepare": "pnpm run build",
+    "start": "npx tsx src/index.ts",
+    "sync:lookup": "node ./scripts/sync-lookup.mjs",
+    "test": "npx vitest run",
+    "test:watch": "npx vitest watch"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3"
+  },
+  "packageManager": "pnpm@10.33.2"
+}
