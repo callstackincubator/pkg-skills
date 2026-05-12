@@ -11,7 +11,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { z } from 'zod';
 
-import lookupTableJson from './lookup-table.json';
+import lookupTableJson from './lookup-table.json' with { type: 'json' };
 
 export type Scope = 'project' | 'global';
 
