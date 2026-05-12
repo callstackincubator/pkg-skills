@@ -17,12 +17,16 @@
   "bugs": {
     "url": "https://github.com/callstackincubator/agent-skills/issues"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "pkg-skills": "dist/index.js"
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md"
   ],
   "dependencies": {
     "@clack/prompts": "^1.1.0",
@@ -31,6 +35,7 @@
     "zod": "^4.3.6"
   },
   "scripts": {
+    "changeset": "changeset",
     "build": "mkdir -p dist && npx tsc --project tsconfig.build.json",
     "prepare": "pnpm run build",
     "start": "npx tsx src/index.ts",
@@ -39,6 +44,7 @@
     "test:watch": "npx vitest watch"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.8",
     "@types/node": "^25.6.0",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3"
