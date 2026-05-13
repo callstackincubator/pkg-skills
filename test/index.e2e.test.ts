@@ -52,6 +52,14 @@ describe('pkg-skills e2e', () => {
 
     expect(processResult.exitCode).toBe(0);
     expect(processResult.stdout).toContain('Usage: pkg-skills');
+    expect(
+      processResult.stdout.match(/Usage: pkg-skills/g)?.length ?? 0
+    ).toBe(1);
+    expect(processResult.stdout).toContain('Examples:');
+    expect(processResult.stdout).toContain(
+      'pkg-skills report --cwd /path/to/repo'
+    );
+    expect(processResult.stdout).toContain('pkg-skills list-supported --json');
   });
 
   it('lists curated supported libraries and skills', () => {

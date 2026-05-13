@@ -40,6 +40,19 @@ type ParsedFlags = {
   version?: boolean;
 };
 
+const EXAMPLES_HELP = `
+Examples:
+  pkg-skills --help                                    # print usage
+  pkg-skills --version                                 # print version
+  pkg-skills report --cwd /path/to/repo                # scan a repo and print recommendations
+  pkg-skills report --json --no-mapping-update         # machine-readable report with bundled mappings
+  pkg-skills auto --global                             # apply recommendations to global skills
+  pkg-skills auto --no-remove                          # install missing skills without pruning extras
+  pkg-skills report --no-mapping-update                # report using bundled mappings only
+  pkg-skills report --workspaces-only --cwd /a/b       # scan workspace packages only in /a/b
+  pkg-skills list-supported --json                     # list curated mappings as JSON
+`;
+
 export function createProgram(): Command {
   return new Command()
     .name('pkg-skills')
@@ -91,7 +104,7 @@ export function createProgram(): Command {
 }
 
 export function getUsage(): string {
-  return createProgram().helpInformation();
+  return `${createProgram().helpInformation()}${EXAMPLES_HELP}`;
 }
 
 export function getPackageVersion(): string {
@@ -109,6 +122,10 @@ export function getPackageVersion(): string {
 export function parseArgs(argv: string[]): CliOptions {
   const program = createProgram();
   program.exitOverride();
+  program.configureOutput({
+    writeOut: () => {},
+    writeErr: () => {},
+  });
 
   let help = false;
 

@@ -77,5 +77,7 @@ describe('parseArgs', () => {
     expect(getUsage()).toContain('--dry-run');
     expect(getUsage()).toContain('--workspaces-only');
     expect(getUsage()).toContain('--ignore');
+    expect(getUsage()).toContain('Examples:');
+    expect(getUsage()).toContain('pkg-skills auto --no-remove');
   });
 });
