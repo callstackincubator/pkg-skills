@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -7,7 +7,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(__dirname, '..');
 const repoRoot = path.resolve(packageRoot, '..', '..');
 const lookupPath = path.join(packageRoot, 'src', 'lookup-table.json');
-const vendoredRoot = path.join(repoRoot, 'plugins', 'vendored');
 
 const remoteSources = [
   {
@@ -18,13 +17,15 @@ const remoteSources = [
     repo: 'software-mansion-labs/skills',
     displayName: 'Software Mansion Skills',
   },
+  {
+    repo: 'callstack/react-native-testing-library',
+    displayName: 'React Native Testing Library Skills',
+  },
+  {
+    repo: 'vercel-labs/agent-skills',
+    displayName: 'Vercel Agent Skills',
+  },
 ];
-
-const vendoredDisplayNameOverrides = {
-  'callstack/react-native-testing-library':
-    'React Native Testing Library Skills',
-  'vercel-labs/agent-skills': 'Vercel Agent Skills',
-};
 
 async function main() {
   const lookup = JSON.parse(await readFile(lookupPath, 'utf8'));
@@ -42,55 +43,11 @@ async function main() {
     };
   }
 
-  for (const source of await discoverVendoredSources()) {
-    nextSources[source.repo] = {
-      repo: source.repo,
-      displayName: source.displayName,
-      skills: preserveExistingDescriptions(
-        lookup,
-        source.repo,
-        await readVendoredSkills(source.skills)
-      ),
-    };
-  }
-
   lookup.lastSyncedAt = new Date().toISOString();
   lookup.sources = nextSources;
   await writeFile(lookupPath, `${JSON.stringify(lookup, null, 2)}\n`, 'utf8');
 
   process.stdout.write(`Synced pkg-skills lookup table: ${lookupPath}\n`);
-}
-
-async function discoverVendoredSources() {
-  const lockfilePath = path.join(vendoredRoot, 'skills-lock.json');
-  const vendoredSkillsRoot = path.join(vendoredRoot, '.agents', 'skills');
-  const lockfile = JSON.parse(await readFile(lockfilePath, 'utf8'));
-  const availableSkillNames = new Set(await readdir(vendoredSkillsRoot));
-  const skillsBySource = new Map();
-
-  for (const [skillName, skillInfo] of Object.entries(lockfile.skills)) {
-    if (
-      skillInfo.sourceType !== 'github' ||
-      !availableSkillNames.has(skillName)
-    ) {
-      continue;
-    }
-
-    if (!skillsBySource.has(skillInfo.source)) {
-      skillsBySource.set(skillInfo.source, []);
-    }
-
-    skillsBySource.get(skillInfo.source).push(skillName);
-  }
-
-  return Array.from(skillsBySource.entries())
-    .map(([repo, skills]) => ({
-      repo,
-      displayName:
-        vendoredDisplayNameOverrides[repo] ?? formatRepoDisplayName(repo),
-      skills: skills.sort(),
-    }))
-    .sort((left, right) => left.repo.localeCompare(right.repo));
 }
 
 async function fetchRemoteSkills(repo) {
@@ -137,36 +94,6 @@ async function fetchRemoteSkills(repo) {
   }
 
   return skills;
-}
-
-async function readVendoredSkills(skillNames) {
-  const skills = [];
-
-  for (const skillName of skillNames) {
-    const skillPath = path.join(
-      vendoredRoot,
-      '.agents',
-      'skills',
-      skillName,
-      'SKILL.md'
-    );
-    const skillMarkdown = await readFile(skillPath, 'utf8');
-    skills.push({
-      name: skillName,
-      description: extractDescription(skillMarkdown),
-    });
-  }
-
-  return skills;
-}
-
-function formatRepoDisplayName(repo) {
-  const repoName = repo.split('/')[1] ?? repo;
-  return repoName
-    .split(/[-_]/)
-    .filter(Boolean)
-    .map((part) => part[0].toUpperCase() + part.slice(1))
-    .join(' ');
 }
 
 function preserveExistingDescriptions(lookup, repo, skills) {
