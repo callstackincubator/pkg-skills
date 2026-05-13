@@ -4,6 +4,7 @@
     "@changesets/changelog-github",
     { "repo": "callstackincubator/pkg-skills" }
   ],
+  "access": "public",
   "commit": false,
   "fixed": [],
   "linked": [],
