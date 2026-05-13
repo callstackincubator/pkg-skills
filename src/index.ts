@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import { execFileSync } from 'node:child_process';
+import { relative, resolve } from 'node:path';
 import { cancel, intro, isCancel, multiselect, outro } from '@clack/prompts';
-import { dim, italic } from 'colorette';
+import { dim, gray, italic, white } from 'colorette';
 
 import {
   buildSkillPlan,
@@ -148,7 +149,7 @@ async function main(): Promise<void> {
   if (useJson) {
     printPlanJson(plan, options);
   } else {
-    printPlan(plan, options.scope);
+    printPlan(plan, options.scope, options.rootDirectory);
   }
 
   if (options.command === 'report') {
@@ -158,7 +159,10 @@ async function main(): Promise<void> {
     return;
   }
 
-  if (options.command === 'auto') {
+  if (
+    options.command === 'auto' ||
+    (options.command === 'interactive' && options.dryRun)
+  ) {
     await applyChanges({
       rootDirectory: options.rootDirectory,
       scope: options.scope,
@@ -167,9 +171,14 @@ async function main(): Promise<void> {
         ? plan.extraInstalledSkills.map((skill) => skill.name)
         : [],
       quiet: useQuiet,
+      dryRun: options.dryRun,
     });
     if (!useQuiet) {
-      outro('Finished applying recommended skill changes.');
+      outro(
+        options.dryRun
+          ? 'Dry run complete. No changes applied.'
+          : 'Finished applying recommended skill changes.'
+      );
     }
     return;
   }
@@ -221,15 +230,21 @@ function printSupportedMappings(
   }
 }
 
-function formatDeclaredIn(paths: string[]): string {
+function formatDeclaredIn(paths: string[], rootDirectory: string): string {
   if (paths.length === 0) {
     return '';
   }
 
-  return `\n  declared in: ${paths.join(', ')}`;
+  const root = resolve(rootDirectory);
+  const relativePaths = paths.map((path) => {
+    const relativePath = relative(root, resolve(path));
+    return relativePath.startsWith('..') ? path : relativePath;
+  });
+
+  return ` declared in: ${relativePaths.join(', ')}`;
 }
 
-function printPlan(plan: SkillPlan, scope: Scope): void {
+function printPlan(plan: SkillPlan, scope: Scope, rootDirectory: string): void {
   section('Project Scan');
   info(
     `Found ${plan.packageJsonPaths.length} package.json file(s) and ${plan.libraries.length} dependency name(s).`
@@ -243,14 +258,15 @@ function printPlan(plan: SkillPlan, scope: Scope): void {
     for (const skill of plan.recommendedSkills) {
       const libraryLines = skill.matchedLibraryDetails
         .map(
-          (library) => `${library.name}${formatDeclaredIn(library.declaredIn)}`
+          (library) =>
+            `${white(library.name)}${dim(formatDeclaredIn(library.declaredIn, rootDirectory))}`
         )
         .join('\n  ');
 
       process.stdout.write(
-        `- ${skill.name} from ${skill.sourceRepo}\n` +
-          `  matches:\n  ${libraryLines}\n` +
-          `  reason: ${skill.description}\n`
+        `- ${white(skill.name)} ${dim('from')} ${gray(skill.sourceRepo)}\n` +
+          `  ${dim('matches:')}\n  ${libraryLines}\n` +
+          `  ${dim('reason:')} ${gray(skill.description ?? '')}\n`
       );
     }
   }
@@ -367,10 +383,13 @@ async function applyChanges(options: {
   installs: string[];
   removals: string[];
   quiet: boolean;
+  dryRun?: boolean;
 }): Promise<void> {
+  const dryRun = options.dryRun ?? false;
+
   if (options.installs.length === 0 && options.removals.length === 0) {
     if (!options.quiet) {
-      info('Nothing to change.');
+      info(dryRun ? 'Nothing would change.' : 'Nothing to change.');
     }
     return;
   }
@@ -378,33 +397,49 @@ async function applyChanges(options: {
   for (const batch of groupInstallsBySource(options.installs)) {
     if (!options.quiet) {
       info(
-        `Installing ${batch.skillNames.join(', ')} from ${
-          batch.sourceRepo
-        } using the Vercel Skills CLI (${dim(italic('npx skills add'))})`
+        dryRun
+          ? `Would install ${batch.skillNames.join(', ')} from ${
+              batch.sourceRepo
+            } using the Vercel Skills CLI (${dim(italic('npx skills add'))})`
+          : `Installing ${batch.skillNames.join(', ')} from ${
+              batch.sourceRepo
+            } using the Vercel Skills CLI (${dim(italic('npx skills add'))})`
       );
     }
-    execFileSync('npx', buildSkillsAddCommandArgs(batch, options.scope), {
-      cwd: options.rootDirectory,
-      stdio: 'inherit',
-    });
+    if (!dryRun) {
+      execFileSync('npx', buildSkillsAddCommandArgs(batch, options.scope), {
+        cwd: options.rootDirectory,
+        stdio: 'inherit',
+      });
+    }
   }
 
   if (options.removals.length > 0) {
     if (!options.quiet) {
-      info(`Removing ${options.removals.join(', ')}`);
+      info(
+        dryRun
+          ? `Would remove ${options.removals.join(', ')}`
+          : `Removing ${options.removals.join(', ')}`
+      );
     }
-    execFileSync(
-      'npx',
-      buildSkillsRemoveCommandArgs(options.removals, options.scope),
-      {
-        cwd: options.rootDirectory,
-        stdio: 'inherit',
-      }
-    );
+    if (!dryRun) {
+      execFileSync(
+        'npx',
+        buildSkillsRemoveCommandArgs(options.removals, options.scope),
+        {
+          cwd: options.rootDirectory,
+          stdio: 'inherit',
+        }
+      );
+    }
   }
 
   if (!options.quiet) {
-    success('Skill changes applied.');
+    success(
+      dryRun
+        ? 'Dry run complete. No changes applied.'
+        : 'Skill changes applied.'
+    );
   }
 }
 

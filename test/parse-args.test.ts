@@ -41,6 +41,7 @@ describe('parseArgs', () => {
       json: true,
       quiet: false,
       noBanner: false,
+      dryRun: false,
       workspacesOnly: true,
       ignoreGlobs: ['experiments/**'],
       ignorePath: 'custom.ignore',
@@ -54,12 +55,20 @@ describe('parseArgs', () => {
     });
   });
 
+  it('parses dry-run', () => {
+    expect(parseArgs(['auto', '--dry-run'])).toMatchObject({
+      command: 'auto',
+      dryRun: true,
+    });
+  });
+
   it('throws for unknown arguments', () => {
     expect(() => parseArgs(['report', '--unknown'])).toThrow(/unknown option/);
   });
 
   it('includes new flags in usage text', () => {
     expect(getUsage()).toContain('--json');
+    expect(getUsage()).toContain('--dry-run');
     expect(getUsage()).toContain('--workspaces-only');
     expect(getUsage()).toContain('--ignore');
   });

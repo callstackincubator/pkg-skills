@@ -19,6 +19,7 @@ export type CliOptions = {
   json: boolean;
   quiet: boolean;
   noBanner: boolean;
+  dryRun: boolean;
   workspacesOnly: boolean;
   ignoreGlobs: string[];
   ignorePath?: string;
@@ -31,6 +32,7 @@ type ParsedFlags = {
   mappingUpdate?: boolean;
   json?: boolean;
   quiet?: boolean;
+  dryRun?: boolean;
   banner?: boolean;
   workspacesOnly?: boolean;
   ignore: string[];
@@ -66,6 +68,10 @@ export function createProgram(): Command {
     )
     .option('--json', 'Emit machine-readable JSON (report and list-supported)')
     .option('--quiet', 'Reduce CLI output')
+    .option(
+      '--dry-run',
+      'Show installs and removals without running the Vercel Skills CLI'
+    )
     .option('--no-banner', 'Skip the startup banner')
     .option(
       '--workspaces-only',
@@ -143,6 +149,7 @@ export function parseArgs(argv: string[]): CliOptions {
     json: Boolean(flags.json),
     quiet: Boolean(flags.quiet),
     noBanner: Boolean(flags.quiet || flags.banner === false),
+    dryRun: Boolean(flags.dryRun),
     workspacesOnly: Boolean(flags.workspacesOnly),
     ignoreGlobs: flags.ignore,
     ignorePath: flags.ignorePath,
@@ -165,6 +172,7 @@ function createDefaultOptions(overrides: Partial<CliOptions> = {}): CliOptions {
     json: false,
     quiet: false,
     noBanner: false,
+    dryRun: false,
     workspacesOnly: false,
     ignoreGlobs: [],
     ...overrides,

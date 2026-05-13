@@ -299,6 +299,20 @@ describe('pkg-skills e2e', () => {
 
     expect(result.exitCode).toBe(0);
   });
+
+  it('does not invoke the skills CLI during auto --dry-run', async () => {
+    const result = await runAutoWithFixture({
+      fixtureName: 'brownfield-app',
+      installedSkills: [],
+      expectedAdds: [],
+      expectedRemovals: [],
+      command: ['auto', '--dry-run'],
+    });
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain('Would install');
+    expect(result.stdout).toContain('Dry run complete. No changes applied.');
+  });
 });
 
 async function runAutoWithFixture(options: {
