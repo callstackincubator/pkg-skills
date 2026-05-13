@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { getUsage, parseArgs } from '../src/parse-args';
+import { stripAnsi } from './strip-ansi';
 
 describe('parseArgs', () => {
   it('returns help defaults', () => {
@@ -73,11 +74,13 @@ describe('parseArgs', () => {
   });
 
   it('includes new flags in usage text', () => {
-    expect(getUsage()).toContain('--json');
-    expect(getUsage()).toContain('--dry-run');
-    expect(getUsage()).toContain('--workspaces-only');
-    expect(getUsage()).toContain('--ignore');
-    expect(getUsage()).toContain('Examples:');
-    expect(getUsage()).toContain('pkg-skills auto --no-remove');
+    const usage = stripAnsi(getUsage());
+
+    expect(usage).toContain('--json');
+    expect(usage).toContain('--dry-run');
+    expect(usage).toContain('--workspaces-only');
+    expect(usage).toContain('--ignore');
+    expect(usage).toContain('Examples:');
+    expect(usage).toContain('pkg-skills auto --no-remove');
   });
 });

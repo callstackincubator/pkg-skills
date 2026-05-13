@@ -12,6 +12,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 
 import packageJson from '../package.json';
+import { stripAnsi } from './strip-ansi';
 
 const tempDirectories: string[] = [];
 const testRoot = import.meta.dirname;
@@ -27,7 +28,7 @@ function spawnCli(
 ): { exitCode: number; stdout: string; stderr: string } {
   const result = spawnSync('tsx', [cliPath, ...args], {
     cwd: options.cwd ?? cliCwd,
-    env: { ...process.env, ...options.env },
+    env: { ...process.env, NO_COLOR: '1', ...options.env },
     encoding: 'utf-8',
   });
   if (result.error) {
@@ -49,17 +50,14 @@ afterEach(async () => {
 describe('pkg-skills e2e', () => {
   it('prints usage for --help', () => {
     const processResult = spawnCli(['--help', '--no-mapping-update']);
+    const stdout = stripAnsi(processResult.stdout);
 
     expect(processResult.exitCode).toBe(0);
-    expect(processResult.stdout).toContain('Usage: pkg-skills');
-    expect(
-      processResult.stdout.match(/Usage: pkg-skills/g)?.length ?? 0
-    ).toBe(1);
-    expect(processResult.stdout).toContain('Examples:');
-    expect(processResult.stdout).toContain(
-      'pkg-skills report --cwd /path/to/repo'
-    );
-    expect(processResult.stdout).toContain('pkg-skills list-supported --json');
+    expect(stdout).toContain('Usage: pkg-skills');
+    expect(stdout.match(/Usage: pkg-skills/g)?.length ?? 0).toBe(1);
+    expect(stdout).toContain('Examples:');
+    expect(stdout).toContain('pkg-skills report --cwd /path/to/repo');
+    expect(stdout).toContain('pkg-skills list-supported --json');
   });
 
   it('lists curated supported libraries and skills', () => {
