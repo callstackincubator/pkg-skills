@@ -33,6 +33,8 @@
   },
   "scripts": {
     "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset publish",
     "build": "mkdir -p dist && npx tsc --project tsconfig.build.json",
     "prepare": "pnpm run build",
     "start": "npx tsx src/index.ts",
@@ -41,6 +43,7 @@
     "test:watch": "npx vitest watch"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^0.7.0",
     "@changesets/cli": "^2.29.8",
     "@types/node": "^25.6.0",
     "tsx": "^4.21.0",

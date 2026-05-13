@@ -10,8 +10,8 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  id-token: write # Required for OIDC
-  contents: write # Required to publish Github Release
+  id-token: write # Required for npm provenance (OIDC)
+  contents: write # Required to push tags and create GitHub releases
   pull-requests: write # Required to create PR with Changeset release
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
 
       - name: Set up pnpm
         uses: pnpm/action-setup@91ab88e2619ed1f46221f0ba42d1492c02baf788 # v6.0.8
@@ -49,6 +49,8 @@ jobs:
         with:
           commit: 'chore: version packages'
           title: 'chore: version packages'
-          publish: pnpm publish -r
+          version: pnpm changeset version
+          publish: pnpm changeset publish
+          createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
