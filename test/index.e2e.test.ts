@@ -247,6 +247,73 @@ describe('pkg-skills e2e', () => {
     expect(processResult.stdout).toContain('packages/ui/package.json');
   });
 
+  it('truncates long declared-in lists in report output', async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), 'pkg-skills-e2e-'));
+    tempDirectories.push(workspaceRoot);
+
+    const projectDirectory = join(workspaceRoot, 'project');
+    const binDirectory = join(workspaceRoot, 'bin');
+    const logPath = join(workspaceRoot, 'skills-log.json');
+    const packagePaths = [
+      'apps/a/package.json',
+      'apps/b/package.json',
+      'apps/c/package.json',
+      'apps/d/package.json',
+      'apps/e/package.json',
+    ];
+
+    await mkdir(binDirectory, { recursive: true });
+    for (const packagePath of packagePaths) {
+      await mkdir(dirname(join(projectDirectory, packagePath)), {
+        recursive: true,
+      });
+      await writeFile(
+        join(projectDirectory, packagePath),
+        JSON.stringify(
+          {
+            dependencies: {
+              'react-native-reanimated': '^4.0.0',
+            },
+          },
+          null,
+          2
+        ),
+        'utf8'
+      );
+    }
+    await writeFile(logPath, '[]\n', 'utf8');
+
+    const fakeNpxPath = join(binDirectory, 'npx');
+    const fakeNpxTemplate = await readFile(templatePath, 'utf8');
+    await writeFile(
+      fakeNpxPath,
+      fakeNpxTemplate.replace(
+        "'__INSTALLED_SKILLS_JSON__'",
+        JSON.stringify(JSON.stringify([]))
+      ),
+      'utf8'
+    );
+    await chmod(fakeNpxPath, 0o755);
+
+    const processResult = spawnCli(
+      ['report', '--no-mapping-update', '--cwd', projectDirectory],
+      {
+        env: {
+          PATH: `${binDirectory}:${process.env.PATH ?? ''}`,
+          RN_SKILLS_E2E_LOG_PATH: logPath,
+        },
+      }
+    );
+
+    expect(processResult.exitCode).toBe(0);
+    expect(processResult.stdout).toContain('apps/a/package.json');
+    expect(processResult.stdout).toContain('apps/b/package.json');
+    expect(processResult.stdout).toContain('apps/c/package.json');
+    expect(processResult.stdout).not.toContain('apps/d/package.json');
+    expect(processResult.stdout).not.toContain('apps/e/package.json');
+    expect(processResult.stdout).toContain('+2 others');
+  });
+
   it('fails with a helpful message for an invalid --cwd', () => {
     const processResult = spawnCli([
       'report',

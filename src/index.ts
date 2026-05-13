@@ -230,6 +230,8 @@ function printSupportedMappings(
   }
 }
 
+const MAX_DECLARED_IN_PATHS = 3;
+
 function formatDeclaredIn(paths: string[], rootDirectory: string): string {
   if (paths.length === 0) {
     return '';
@@ -241,7 +243,18 @@ function formatDeclaredIn(paths: string[], rootDirectory: string): string {
     return relativePath.startsWith('..') ? path : relativePath;
   });
 
-  return ` declared in: ${relativePaths.join(', ')}`;
+  const visiblePaths = relativePaths.slice(0, MAX_DECLARED_IN_PATHS);
+  const overflowCount = relativePaths.length - visiblePaths.length;
+  const overflowSuffix =
+    overflowCount > 0
+      ? `, ${gray(
+          `+${overflowCount} ${overflowCount === 1 ? 'other' : 'others'}`
+        )}`
+      : '';
+
+  return `${dim(' declared in:')} ${dim(
+    visiblePaths.join(', ')
+  )}${overflowSuffix}`;
 }
 
 function printPlan(plan: SkillPlan, scope: Scope, rootDirectory: string): void {
@@ -259,14 +272,17 @@ function printPlan(plan: SkillPlan, scope: Scope, rootDirectory: string): void {
       const libraryLines = skill.matchedLibraryDetails
         .map(
           (library) =>
-            `${white(library.name)}${dim(formatDeclaredIn(library.declaredIn, rootDirectory))}`
+            `\t${white(library.name)}${formatDeclaredIn(
+              library.declaredIn,
+              rootDirectory
+            )}`
         )
         .join('\n  ');
 
       process.stdout.write(
         `- ${white(skill.name)} ${dim('from')} ${gray(skill.sourceRepo)}\n` +
           `  ${dim('matches:')}\n  ${libraryLines}\n` +
-          `  ${dim('reason:')} ${gray(skill.description ?? '')}\n`
+          `  ${dim('reason:')} ${gray(skill.description ?? '')}\n\n`
       );
     }
   }
