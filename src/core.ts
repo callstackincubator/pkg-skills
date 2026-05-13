@@ -12,6 +12,7 @@ import { dirname, join } from 'node:path';
 import { z } from 'zod';
 
 import lookupTableJson from './lookup-table.json' with { type: 'json' };
+import { warn } from './logger.js';
 
 export type Scope = 'project' | 'global';
 
@@ -76,7 +77,7 @@ type PackageManifest = {
 
 const lookupTable = lookupTableJson as LookupTable;
 const REMOTE_LOOKUP_TABLE_URL =
-  'https://raw.githubusercontent.com/callstackincubator/agent-skills/refs/heads/main/packages/pkg-skills/src/lookup-table.json';
+  'https://raw.githubusercontent.com/callstackincubator/pkg-skills/refs/heads/main/src/lookup-table.json';
 const LOOKUP_TABLE_FETCH_TIMEOUT_MS = 1500;
 
 let remoteLookupTablePromise: Promise<LookupTable> | undefined;
@@ -339,16 +340,19 @@ async function fetchRemoteLookupTable(): Promise<LookupTable> {
     });
 
     if (!response.ok) {
+      warn(`Failed to fetch remote lookup table: ${response.status} ${response.statusText}. Using bundled lookup table instead.`);
       return lookupTable;
     }
 
     const payload = lookupTableSchema.safeParse(await response.json());
     if (!payload.success) {
+      warn(`Failed to parse remote lookup table: ${payload.error.message}. Using bundled lookup table instead.`);
       return lookupTable;
     }
 
     return payload.data;
-  } catch {
+  } catch (error) {
+    warn(`Failed to obtain remote lookup table: ${error}. Using bundled lookup table instead.`);
     return lookupTable;
   }
 }
