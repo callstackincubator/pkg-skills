@@ -6,7 +6,13 @@ describe('parseArgs', () => {
   it('returns help defaults', () => {
     expect(parseArgs(['--help'])).toMatchObject({
       help: true,
-      command: 'auto',
+      command: 'interactive',
+    });
+  });
+
+  it('defaults to interactive when no command is passed', () => {
+    expect(parseArgs([])).toMatchObject({
+      command: 'interactive',
     });
   });
 

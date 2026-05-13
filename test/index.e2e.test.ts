@@ -67,23 +67,6 @@ describe('pkg-skills e2e', () => {
     expect(stdout).toContain('react-native-reanimated');
   });
 
-  it('defaults to auto when no command is passed', async () => {
-    const result = await runAutoWithFixture({
-      fixtureName: 'brownfield-app',
-      installedSkills: [],
-      expectedAdds: [
-        [
-          'callstackincubator/agent-skills',
-          'react-native-brownfield-migration',
-        ],
-      ],
-      expectedRemovals: [],
-      command: [],
-    });
-
-    expect(result.exitCode).toBe(0);
-  });
-
   it('adds the expected Callstack, Vercel, and testing skills for expo-app', async () => {
     const result = await runAutoWithFixture({
       fixtureName: 'expo-app',

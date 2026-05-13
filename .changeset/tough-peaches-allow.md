@@ -2,4 +2,4 @@
 'pkg-skills': patch
 ---
 
-feat: more readable output in recommended section, add --dry-run flag
+feat: more readable output in recommended section, add --dry-run flag, default to interactive

@@ -30,10 +30,10 @@ pkg-skills list-supported
 
 What each command does:
 
-- `pkg-skills`: defaults to `auto`
+- `pkg-skills`: defaults to `interactive`
+- `interactive`: print the report and ask which missing skills to install and which extra skills to remove
 - `auto`: install all missing skills and remove extra managed pkg skills without prompts
 - `report`: print detected libraries, recommended skills, missing skills, and extra managed pkg skills without changing anything
-- `interactive`: print the same report and ask which missing skills to install and which extra skills to remove
 - `list-supported`: print the curated library-to-skill mappings bundled in the lookup table
 
 `auto` and `interactive` only remove skills managed by this CLI's lookup table. They do not remove unrelated installed skills.
@@ -48,6 +48,7 @@ These flags are supported for all commands:
 --no-remove           Keep extra managed skills installed; only add missing skills
 --no-mapping-update   Use the bundled local lookup table instead of fetching the latest one
 --json                Emit machine-readable JSON (report and list-supported)
+--dry-run             Show installs and removals without running the Vercel Skills CLI
 --quiet               Reduce CLI output; implies --no-banner
 --no-banner           Skip the startup banner
 --version, -v         Print the CLI version
@@ -56,6 +57,8 @@ These flags are supported for all commands:
 --ignore-path <file>  Load ignore globs from a file instead of `.pkg-skillsignore`
 --help, -h            Print usage
 ```
+
+`--dry-run` is useful with `auto` and `interactive` to preview installs and removals without changing installed skills.
 
 `--no-remove` is useful with `auto` and `interactive` when you want recommendations and installs, but do not want the CLI to prune managed skills that are currently not needed by the detected dependencies.
 
@@ -81,16 +84,22 @@ By default, the CLI attempts to fetch the newest lookup table from GitHub. If th
 
 ## Typical Usage
 
+Review recommendations and choose what to install:
+
+```bash
+pkg-skills
+```
+
 Inspect recommendations without making changes:
 
 ```bash
 pkg-skills report --cwd /path/to/repo
 ```
 
-Apply everything automatically:
+Apply everything automatically (for scripts and CI):
 
 ```bash
-pkg-skills
+pkg-skills auto
 ```
 
 Apply missing skills without removing currently installed managed ones:
@@ -99,16 +108,16 @@ Apply missing skills without removing currently installed managed ones:
 pkg-skills auto --no-remove
 ```
 
+Preview changes without applying them:
+
+```bash
+pkg-skills auto --dry-run
+```
+
 Use the packaged lookup table only:
 
 ```bash
 pkg-skills report --no-mapping-update
-```
-
-Review and choose interactively:
-
-```bash
-pkg-skills interactive
 ```
 
 See which libraries and skills are included in the curated mappings:

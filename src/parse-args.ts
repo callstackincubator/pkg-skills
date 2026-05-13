@@ -48,9 +48,9 @@ export function createProgram(): Command {
     )
     .configureHelp({ sortOptions: true })
     .addArgument(
-      new Argument('[command]', 'Command to run')
+      new Argument('[command]', 'Command to run (default: interactive)')
         .choices(['auto', 'interactive', 'report', 'list-supported'])
-        .default('auto')
+        .default('interactive')
     )
     .option('--global', 'Compare against and modify global skills')
     .option(
@@ -162,7 +162,7 @@ function collectValues(value: string, previous: string[]): string[] {
 
 function createDefaultOptions(overrides: Partial<CliOptions> = {}): CliOptions {
   return {
-    command: 'auto',
+    command: 'interactive',
     scope: 'project',
     rootDirectory: cwd(),
     help: false,
