@@ -274,7 +274,10 @@ export function parseArgs(argv: string[]): CliOptions {
   }
 
   if (help) {
-    return createDefaultOptions({ help: true });
+    return createDefaultOptions({
+      help: true,
+      noBanner: Boolean(flags.quiet || flags.banner === false),
+    });
   }
 
   const command = program.processedArgs[0] as CommandName;

@@ -1,14 +1,21 @@
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
   buildSkillPlan,
   buildSkillsAddCommandArgs,
   buildSkillsRemoveCommandArgs,
+  configureLookupTablePathsForTests,
   createTempProject,
   discoverPackageJsonPaths,
   getBundledLookupTable,
+  getLookupTableFetchStatus,
   getLookupTableWithOptions,
   groupInstallsBySource,
+  persistLookupTableCacheIfNeeded,
   removeTempProject,
+  resetRemoteLookupStateForTests,
   resolveWorkspaceRoots,
   scanProjectLibraries,
   shouldIgnorePath,
@@ -429,8 +436,37 @@ describe('buildSkillsRemoveCommandArgs', () => {
 });
 
 describe('getLookupTableWithOptions', () => {
+  const lookupCacheDirectories: string[] = [];
+  const originalFetch = globalThis.fetch;
+
+  afterEach(async () => {
+    globalThis.fetch = originalFetch;
+    resetRemoteLookupStateForTests();
+
+    while (lookupCacheDirectories.length > 0) {
+      await rm(lookupCacheDirectories.pop()!, { recursive: true, force: true });
+    }
+  });
+
+  async function createInstalledLookup(
+    lookupTable = getBundledLookupTable(),
+    etag = '"cached-etag"'
+  ): Promise<{ tablePath: string; etagPath: string }> {
+    const directory = await mkdtemp(join(tmpdir(), 'pkg-skills-lookup-cache-'));
+    lookupCacheDirectories.push(directory);
+    const tablePath = join(directory, 'lookup-table.json');
+    const etagPath = join(directory, 'lookup-table.etag');
+    configureLookupTablePathsForTests({ tablePath, etagPath });
+    await writeFile(
+      tablePath,
+      `${JSON.stringify(lookupTable, null, 2)}\n`,
+      'utf8'
+    );
+    await writeFile(etagPath, `${etag}\n`, 'utf8');
+    return { tablePath, etagPath };
+  }
+
   it('does not attempt a remote fetch when disableRemoteLookup is true', async () => {
-    const originalFetch = globalThis.fetch;
     const fetchCalls: unknown[][] = [];
 
     globalThis.fetch = (async (...args: unknown[]) => {
@@ -438,14 +474,54 @@ describe('getLookupTableWithOptions', () => {
       throw new Error('fetch should not be called');
     }) as unknown as typeof fetch;
 
-    try {
-      const lookup = await getLookupTableWithOptions({
-        disableRemoteLookup: true,
+    const lookup = await getLookupTableWithOptions({
+      disableRemoteLookup: true,
+    });
+    expect(lookup).toEqual(getBundledLookupTable());
+    expect(fetchCalls).toHaveLength(0);
+  });
+
+  it('uses installed lookup table when remote responds with 304', async () => {
+    const cachedLookup = getBundledLookupTable();
+    cachedLookup.catalogVersion = 99;
+    await createInstalledLookup(cachedLookup);
+
+    globalThis.fetch = (async (_url, init) => {
+      expect(init?.headers).toMatchObject({
+        'If-None-Match': '"cached-etag"',
       });
-      expect(lookup).toEqual(getBundledLookupTable());
-      expect(fetchCalls).toHaveLength(0);
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
+
+      return new Response(null, { status: 304 });
+    }) as unknown as typeof fetch;
+
+    const lookup = await getLookupTableWithOptions();
+    expect(lookup.catalogVersion).toBe(99);
+    expect(getLookupTableFetchStatus()).toBe('up-to-date');
+  });
+
+  it('persists an updated lookup table and etag to the install directory after fetch', async () => {
+    const { tablePath, etagPath } = await createInstalledLookup();
+    const remoteLookup = getBundledLookupTable();
+    remoteLookup.catalogVersion = 42;
+
+    globalThis.fetch = (async () =>
+      new Response(JSON.stringify(remoteLookup), {
+        status: 200,
+        headers: {
+          etag: '"remote-etag"',
+        },
+      })) as unknown as typeof fetch;
+
+    const lookup = await getLookupTableWithOptions();
+    expect(lookup.catalogVersion).toBe(42);
+    expect(getLookupTableFetchStatus()).toBe('updated');
+
+    await persistLookupTableCacheIfNeeded();
+
+    const persisted = JSON.parse(await readFile(tablePath, 'utf8')) as {
+      catalogVersion: number;
+    };
+    expect(persisted.catalogVersion).toBe(42);
+    expect((await readFile(etagPath, 'utf8')).trim()).toBe('"remote-etag"');
   });
 });

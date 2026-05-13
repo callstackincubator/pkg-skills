@@ -9,9 +9,11 @@ import {
   buildSkillsAddCommandArgs,
   buildSkillsRemoveCommandArgs,
   getBundledLookupTable,
+  getLookupTableFetchStatus,
   getLookupTableWithOptions,
   getSkillsCliArgs,
   groupInstallsBySource,
+  persistLookupTableCacheIfNeeded,
   scanProjectLibraries,
   validateRootDirectory,
 } from './core.js';
@@ -59,9 +61,26 @@ async function getInstalledSkills(
 }
 
 async function main(): Promise<void> {
+  let success = true;
+
+  try {
+    await run();
+  } catch {
+    success = false;
+  } finally {
+    if (success) {
+      await persistLookupTableCacheIfNeeded();
+    }
+  }
+}
+
+async function run(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
 
   if (options.help) {
+    if (!options.noBanner) {
+      printBanner();
+    }
     process.stdout.write(`${getUsage()}\n`);
     return;
   }
@@ -81,6 +100,10 @@ async function main(): Promise<void> {
   const lookup = await getLookupTableWithOptions({
     disableRemoteLookup: options.disableRemoteLookup,
   });
+
+  if (!useQuiet && getLookupTableFetchStatus() === 'up-to-date') {
+    info('Lookup table is up to date.');
+  }
 
   if (options.command === 'list-supported') {
     if (useJson) {

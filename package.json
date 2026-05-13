@@ -22,7 +22,9 @@
   "files": [
     "dist",
     "README.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "!src/lookup-table.etag",
+    "!dist/lookup-table.etag"
   ],
   "dependencies": {
     "@clack/prompts": "^1.1.0",
@@ -35,7 +37,7 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "changeset publish",
-    "build": "mkdir -p dist && npx tsc --project tsconfig.build.json",
+    "build": "mkdir -p dist && npx tsc --project tsconfig.build.json && cp src/lookup-table.json dist/lookup-table.json",
     "prepare": "pnpm run build",
     "start": "npx tsx src/index.ts",
     "sync:lookup": "node ./scripts/sync-lookup.mjs",

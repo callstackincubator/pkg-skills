@@ -84,10 +84,14 @@
       ]
     },
     "@react-navigation/native": {
-      "skillRefs": ["vercel-labs/agent-skills:vercel-react-native-skills"]
+      "skillRefs": [
+        "vercel-labs/agent-skills:vercel-react-native-skills"
+      ]
     },
     "@react-navigation/native-stack": {
-      "skillRefs": ["vercel-labs/agent-skills:vercel-react-native-skills"]
+      "skillRefs": [
+        "vercel-labs/agent-skills:vercel-react-native-skills"
+      ]
     },
     "@shopify/flash-list": {
       "skillRefs": [
@@ -107,10 +111,14 @@
       ]
     },
     "expo-font": {
-      "skillRefs": ["vercel-labs/agent-skills:vercel-react-native-skills"]
+      "skillRefs": [
+        "vercel-labs/agent-skills:vercel-react-native-skills"
+      ]
     },
     "expo-image": {
-      "skillRefs": ["vercel-labs/agent-skills:vercel-react-native-skills"]
+      "skillRefs": [
+        "vercel-labs/agent-skills:vercel-react-native-skills"
+      ]
     },
     "react-native": {
       "skillRefs": [
@@ -119,25 +127,39 @@
       ]
     },
     "react-native-audio-api": {
-      "skillRefs": ["software-mansion-labs/skills:react-native-best-practices"]
+      "skillRefs": [
+        "software-mansion-labs/skills:react-native-best-practices"
+      ]
     },
     "react-native-enriched": {
-      "skillRefs": ["software-mansion-labs/skills:react-native-best-practices"]
+      "skillRefs": [
+        "software-mansion-labs/skills:react-native-best-practices"
+      ]
     },
     "react-native-enriched-markdown": {
-      "skillRefs": ["software-mansion-labs/skills:react-native-best-practices"]
+      "skillRefs": [
+        "software-mansion-labs/skills:react-native-best-practices"
+      ]
     },
     "react-native-executorch": {
-      "skillRefs": ["software-mansion-labs/skills:react-native-best-practices"]
+      "skillRefs": [
+        "software-mansion-labs/skills:react-native-best-practices"
+      ]
     },
     "react-native-gesture-handler": {
-      "skillRefs": ["software-mansion-labs/skills:react-native-best-practices"]
+      "skillRefs": [
+        "software-mansion-labs/skills:react-native-best-practices"
+      ]
     },
     "react-native-reanimated": {
-      "skillRefs": ["software-mansion-labs/skills:react-native-best-practices"]
+      "skillRefs": [
+        "software-mansion-labs/skills:react-native-best-practices"
+      ]
     },
     "react-native-safe-area-context": {
-      "skillRefs": ["vercel-labs/agent-skills:vercel-react-native-skills"]
+      "skillRefs": [
+        "vercel-labs/agent-skills:vercel-react-native-skills"
+      ]
     },
     "react-native-screens": {
       "skillRefs": [
@@ -146,13 +168,19 @@
       ]
     },
     "react-native-svg": {
-      "skillRefs": ["software-mansion-labs/skills:react-native-best-practices"]
+      "skillRefs": [
+        "software-mansion-labs/skills:react-native-best-practices"
+      ]
     },
     "react-native-video": {
-      "skillRefs": ["software-mansion-labs/skills:react-native-best-practices"]
+      "skillRefs": [
+        "software-mansion-labs/skills:react-native-best-practices"
+      ]
     },
     "react-native-worklets": {
-      "skillRefs": ["software-mansion-labs/skills:react-native-best-practices"]
+      "skillRefs": [
+        "software-mansion-labs/skills:react-native-best-practices"
+      ]
     }
   }
 }

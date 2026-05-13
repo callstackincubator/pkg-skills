@@ -11,6 +11,7 @@ import {
 } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 
 import lookupTableJson from './lookup-table.json' with { type: 'json' };
@@ -99,6 +100,12 @@ const LOOKUP_TABLE_FETCH_TIMEOUT_MS = 1500;
 const DEFAULT_IGNORE_FILE = '.pkg-skillsignore';
 
 let remoteLookupTablePromise: Promise<LookupTable> | undefined;
+let pendingLookupCache: { etag: string; lookupTable: LookupTable } | undefined;
+let lookupFetchStatus: LookupTableFetchStatus | undefined;
+let testLookupTablePathOverride: string | undefined;
+let testLookupEtagPathOverride: string | undefined;
+
+export type LookupTableFetchStatus = 'up-to-date' | 'updated' | 'bundled' | 'cache';
 
 const lookupTableSchema = z.object({
   catalogVersion: z.number(),
@@ -177,6 +184,94 @@ export async function getLookupTableWithOptions(options?: {
   }
 
   return remoteLookupTablePromise;
+}
+
+export function getLookupTableFetchStatus():
+  | LookupTableFetchStatus
+  | undefined {
+  return lookupFetchStatus;
+}
+
+export async function persistLookupTableCacheIfNeeded(): Promise<void> {
+  if (!pendingLookupCache) {
+    return;
+  }
+
+  const { tablePath, etagPath } = getInstalledLookupPaths();
+  await mkdir(dirname(tablePath), { recursive: true });
+  await writeFile(
+    tablePath,
+    `${JSON.stringify(pendingLookupCache.lookupTable, null, 2)}\n`,
+    'utf8'
+  );
+  await writeFile(etagPath, `${pendingLookupCache.etag}\n`, 'utf8');
+  pendingLookupCache = undefined;
+}
+
+export function resetRemoteLookupStateForTests(): void {
+  remoteLookupTablePromise = undefined;
+  pendingLookupCache = undefined;
+  lookupFetchStatus = undefined;
+  testLookupTablePathOverride = undefined;
+  testLookupEtagPathOverride = undefined;
+}
+
+export function configureLookupTablePathsForTests(paths: {
+  tablePath: string;
+  etagPath: string;
+}): void {
+  assertTestEnvironment('configureLookupTablePathsForTests');
+  testLookupTablePathOverride = paths.tablePath;
+  testLookupEtagPathOverride = paths.etagPath;
+}
+
+function assertTestEnvironment(apiName: string): void {
+  if (process.env.VITEST !== 'true') {
+    throw new Error(`${apiName} is only available under Vitest.`);
+  }
+}
+
+function getInstalledLookupPaths(): {
+  tablePath: string;
+  etagPath: string;
+} {
+  const packageDirectory = dirname(fileURLToPath(import.meta.url));
+
+  return {
+    tablePath:
+      testLookupTablePathOverride ??
+      join(packageDirectory, 'lookup-table.json'),
+    etagPath:
+      testLookupEtagPathOverride ??
+      join(packageDirectory, 'lookup-table.etag'),
+  };
+}
+
+async function readInstalledLookupState(): Promise<{
+  lookupTable: LookupTable;
+  etag?: string;
+}> {
+  const { tablePath, etagPath } = getInstalledLookupPaths();
+  let etag: string | undefined;
+
+  try {
+    etag = (await readFile(etagPath, 'utf8')).trim() || undefined;
+  } catch {
+    // Optional sidecar ETag file.
+  }
+
+  try {
+    const payload = lookupTableSchema.safeParse(
+      JSON.parse(await readFile(tablePath, 'utf8'))
+    );
+    if (payload.success) {
+      return { lookupTable: payload.data, etag };
+    }
+  } catch {
+    // Fall back to the bundled lookup table.
+  }
+
+  return { lookupTable, etag };
 }
 
 export function getBundledLookupTable(): LookupTable {
@@ -746,31 +841,56 @@ export function buildSkillsRemoveCommandArgs(
 }
 
 async function fetchRemoteLookupTable(): Promise<LookupTable> {
+  const installed = await readInstalledLookupState();
+  const headers: Record<string, string> = {};
+
+  if (installed.etag) {
+    headers['If-None-Match'] = installed.etag;
+  }
+
   try {
     const response = await fetch(REMOTE_LOOKUP_TABLE_URL, {
       signal: AbortSignal.timeout(LOOKUP_TABLE_FETCH_TIMEOUT_MS),
+      headers,
     });
+
+    if (response.status === 304) {
+      lookupFetchStatus = 'up-to-date';
+      return installed.lookupTable;
+    }
 
     if (!response.ok) {
       warn(
-        `Failed to fetch remote lookup table: ${response.status} ${response.statusText}. Using bundled lookup table instead.`
+        `Failed to fetch remote lookup table: ${response.status} ${response.statusText}. Using installed lookup table instead.`
       );
-      return lookupTable;
+      lookupFetchStatus = 'cache';
+      return installed.lookupTable;
     }
 
     const payload = lookupTableSchema.safeParse(await response.json());
     if (!payload.success) {
       warn(
-        `Failed to parse remote lookup table: ${payload.error.message}. Using bundled lookup table instead.`
+        `Failed to parse remote lookup table: ${payload.error.message}. Using installed lookup table instead.`
       );
-      return lookupTable;
+      lookupFetchStatus = 'cache';
+      return installed.lookupTable;
     }
 
+    const etag = response.headers.get('etag');
+    if (etag) {
+      pendingLookupCache = {
+        etag,
+        lookupTable: payload.data,
+      };
+    }
+
+    lookupFetchStatus = 'updated';
     return payload.data;
   } catch (error) {
     warn(
-      `Failed to obtain remote lookup table: ${error}. Using bundled lookup table instead.`
+      `Failed to obtain remote lookup table: ${error}. Using installed lookup table instead.`
     );
-    return lookupTable;
+    lookupFetchStatus = 'cache';
+    return installed.lookupTable;
   }
 }

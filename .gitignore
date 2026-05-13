@@ -36,3 +36,5 @@ coverage/
 *.tmp
 *.temp
 .cache/
+
+src/lookup-table.etag
