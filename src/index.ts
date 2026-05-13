@@ -61,14 +61,15 @@ async function getInstalledSkills(
 }
 
 async function main(): Promise<void> {
-  let success = true;
+  let runSucceeded = true;
 
   try {
     await run();
-  } catch {
-    success = false;
+  } catch (cause) {
+    runSucceeded = false;
+    throw cause;
   } finally {
-    if (success) {
+    if (runSucceeded) {
       await persistLookupTableCacheIfNeeded();
     }
   }

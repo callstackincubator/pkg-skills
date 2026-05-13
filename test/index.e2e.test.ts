@@ -321,11 +321,16 @@ describe('pkg-skills e2e', () => {
     expect(processResult.stdout).toContain('+2 others');
   });
 
-  it('fails with a helpful message for an invalid --cwd', () => {
+  it('fails with a helpful message for an invalid --cwd', async () => {
+    const removedDirectory = await mkdtemp(
+      join(tmpdir(), 'pkg-skills-missing-')
+    );
+    await rm(removedDirectory, { recursive: true, force: true });
+
     const processResult = spawnCli([
       'report',
       '--cwd',
-      '/tmp/pkg-skills-missing-directory',
+      removedDirectory,
       '--no-mapping-update',
     ]);
 
