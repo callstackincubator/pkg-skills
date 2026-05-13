@@ -1,5 +1,13 @@
 # pkg-skills
 
+## 0.2.2
+
+### Patch Changes
+
+- [`535ff68`](https://github.com/callstackincubator/pkg-skills/commit/535ff68ccb50ed1443e96806e8f076c39a8a34e4) Thanks [@artus9033](https://github.com/artus9033)! - feat: style help message
+
+- [`cdb0538`](https://github.com/callstackincubator/pkg-skills/commit/cdb0538663ab0873e4120157dd316f85d67997a3) Thanks [@artus9033](https://github.com/artus9033)! - feat: optimized lookup-table fetching with ETag-based caching
+
 ## 0.2.1
 
 ### Patch Changes
