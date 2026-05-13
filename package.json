@@ -12,12 +12,9 @@
     "type": "git",
     "url": "git+https://github.com/callstackincubator/pkg-skills.git"
   },
-  "homepage": "https://github.com/callstackincubator/pkg-skills/tree/main/packages/pkg-skills",
+  "homepage": "https://github.com/callstackincubator/pkg-skills/tree/main/",
   "bugs": {
     "url": "https://github.com/callstackincubator/pkg-skills/issues"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "bin": {
     "pkg-skills": "dist/index.js"
@@ -41,8 +38,7 @@
     "start": "npx tsx src/index.ts",
     "sync:lookup": "node ./scripts/sync-lookup.mjs",
     "test": "npx vitest run",
-    "test:watch": "npx vitest watch",
-    "publish:npm": "npm publish --access public"
+    "test:watch": "npx vitest watch"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.8",
