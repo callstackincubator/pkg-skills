@@ -5,9 +5,12 @@ import { dim, italic } from 'colorette';
 
 import {
   buildSkillPlan,
+  buildSkillsAddCommandArgs,
+  buildSkillsRemoveCommandArgs,
   getBundledLookupTable,
   getLookupTableWithOptions,
   getSkillsCliArgs,
+  groupInstallsBySource,
   scanProjectLibraries,
   validateRootDirectory,
 } from './core.js';
@@ -372,48 +375,27 @@ async function applyChanges(options: {
     return;
   }
 
-  for (const ref of options.installs) {
-    const [sourceRepo, skillName] = ref.split(':');
+  for (const batch of groupInstallsBySource(options.installs)) {
     if (!options.quiet) {
       info(
-        `Installing ${skillName} from ${sourceRepo} using the Vercel Skills CLI (${dim(
-          italic('npx skills add')
-        )})`
+        `Installing ${batch.skillNames.join(', ')} from ${
+          batch.sourceRepo
+        } using the Vercel Skills CLI (${dim(italic('npx skills add'))})`
       );
     }
-    execFileSync(
-      'npx',
-      [
-        '-y',
-        'skills',
-        'add',
-        sourceRepo,
-        '--skill',
-        skillName,
-        '--yes',
-        ...getSkillsCliArgs(options.scope),
-      ],
-      {
-        cwd: options.rootDirectory,
-        stdio: 'inherit',
-      }
-    );
+    execFileSync('npx', buildSkillsAddCommandArgs(batch, options.scope), {
+      cwd: options.rootDirectory,
+      stdio: 'inherit',
+    });
   }
 
-  for (const skillName of options.removals) {
+  if (options.removals.length > 0) {
     if (!options.quiet) {
-      info(`Removing ${skillName}`);
+      info(`Removing ${options.removals.join(', ')}`);
     }
     execFileSync(
       'npx',
-      [
-        '-y',
-        'skills',
-        'remove',
-        skillName,
-        '--yes',
-        ...getSkillsCliArgs(options.scope),
-      ],
+      buildSkillsRemoveCommandArgs(options.removals, options.scope),
       {
         cwd: options.rootDirectory,
         stdio: 'inherit',

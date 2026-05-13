@@ -12,7 +12,7 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { z } from 'zod';
-
+import {} from "skills"
 import lookupTableJson from './lookup-table.json' with { type: 'json' };
 import { warn } from './logger.js';
 
@@ -685,6 +685,64 @@ async function readJsonFile<T>(path: string): Promise<T> {
 
 export function getSkillsCliArgs(scope: Scope): string[] {
   return scope === 'global' ? ['-g'] : [];
+}
+
+export type SourceSkillBatch = {
+  sourceRepo: string;
+  skillNames: string[];
+};
+
+export function groupInstallsBySource(skillRefs: string[]): SourceSkillBatch[] {
+  const batches = new Map<string, Set<string>>();
+
+  for (const ref of skillRefs) {
+    const [sourceRepo, skillName] = ref.split(':');
+    if (!sourceRepo || !skillName) {
+      throw new Error(`Invalid skill reference: ${ref}`);
+    }
+
+    if (!batches.has(sourceRepo)) {
+      batches.set(sourceRepo, new Set());
+    }
+
+    batches.get(sourceRepo)!.add(skillName);
+  }
+
+  return Array.from(batches.entries())
+    .map(([sourceRepo, skillNames]) => ({
+      sourceRepo,
+      skillNames: Array.from(skillNames).sort(),
+    }))
+    .sort((left, right) => left.sourceRepo.localeCompare(right.sourceRepo));
+}
+
+export function buildSkillsAddCommandArgs(
+  batch: SourceSkillBatch,
+  scope: Scope
+): string[] {
+  return [
+    '-y',
+    'skills',
+    'add',
+    batch.sourceRepo,
+    ...batch.skillNames.flatMap((skillName) => ['--skill', skillName]),
+    '--yes',
+    ...getSkillsCliArgs(scope),
+  ];
+}
+
+export function buildSkillsRemoveCommandArgs(
+  skillNames: string[],
+  scope: Scope
+): string[] {
+  return [
+    '-y',
+    'skills',
+    'remove',
+    ...skillNames,
+    '--yes',
+    ...getSkillsCliArgs(scope),
+  ];
 }
 
 async function fetchRemoteLookupTable(): Promise<LookupTable> {

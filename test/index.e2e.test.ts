@@ -353,18 +353,8 @@ async function runAutoWithFixture(options: {
   );
 
   const invocations = JSON.parse(await readFile(logPath, 'utf8')) as string[][];
-  const addInvocations = invocations
-    .filter(
-      (args) => args[0] === '-y' && args[1] === 'skills' && args[2] === 'add'
-    )
-    .map((args) => [args[3], args[5]] as [string, string])
-    .sort((left, right) => left.join(' ').localeCompare(right.join(' ')));
-  const removeInvocations = invocations
-    .filter(
-      (args) => args[0] === '-y' && args[1] === 'skills' && args[2] === 'remove'
-    )
-    .map((args) => args[3])
-    .sort((left, right) => left.localeCompare(right));
+  const addInvocations = parseSkillsAddInvocations(invocations);
+  const removeInvocations = parseSkillsRemoveInvocations(invocations);
 
   expect(addInvocations).toEqual(
     [...options.expectedAdds].sort((left, right) =>
@@ -378,6 +368,50 @@ async function runAutoWithFixture(options: {
   );
 
   return processResult;
+}
+
+function parseSkillsAddInvocations(
+  invocations: string[][]
+): Array<[string, string]> {
+  const adds: Array<[string, string]> = [];
+
+  for (const args of invocations) {
+    if (args[0] !== '-y' || args[1] !== 'skills' || args[2] !== 'add') {
+      continue;
+    }
+
+    const sourceRepo = args[3];
+    for (let index = 4; index < args.length; index += 1) {
+      if (args[index] === '--skill' && args[index + 1]) {
+        adds.push([sourceRepo, args[index + 1]]);
+        index += 1;
+      }
+    }
+  }
+
+  return adds.sort((left, right) =>
+    left.join(' ').localeCompare(right.join(' '))
+  );
+}
+
+function parseSkillsRemoveInvocations(invocations: string[][]): string[] {
+  const removals: string[] = [];
+
+  for (const args of invocations) {
+    if (args[0] !== '-y' || args[1] !== 'skills' || args[2] !== 'remove') {
+      continue;
+    }
+
+    for (let index = 3; index < args.length; index += 1) {
+      if (args[index].startsWith('-')) {
+        break;
+      }
+
+      removals.push(args[index]);
+    }
+  }
+
+  return removals.sort((left, right) => left.localeCompare(right));
 }
 
 async function runReportWithFixture(options: {

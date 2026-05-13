@@ -1,10 +1,13 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import {
   buildSkillPlan,
+  buildSkillsAddCommandArgs,
+  buildSkillsRemoveCommandArgs,
   createTempProject,
   discoverPackageJsonPaths,
   getBundledLookupTable,
   getLookupTableWithOptions,
+  groupInstallsBySource,
   removeTempProject,
   resolveWorkspaceRoots,
   scanProjectLibraries,
@@ -350,6 +353,78 @@ describe('validateRootDirectory', () => {
     tempDirectories.push(root);
 
     await expect(validateRootDirectory(root)).resolves.toBeUndefined();
+  });
+});
+
+describe('groupInstallsBySource', () => {
+  it('groups skill refs by source repository', () => {
+    expect(
+      groupInstallsBySource([
+        'callstackincubator/agent-skills:react-native-best-practices',
+        'callstackincubator/agent-skills:upgrading-react-native',
+        'callstack/react-native-testing-library:react-native-testing',
+        'vercel-labs/agent-skills:vercel-react-native-skills',
+      ])
+    ).toEqual([
+      {
+        sourceRepo: 'callstack/react-native-testing-library',
+        skillNames: ['react-native-testing'],
+      },
+      {
+        sourceRepo: 'callstackincubator/agent-skills',
+        skillNames: ['react-native-best-practices', 'upgrading-react-native'],
+      },
+      {
+        sourceRepo: 'vercel-labs/agent-skills',
+        skillNames: ['vercel-react-native-skills'],
+      },
+    ]);
+  });
+});
+
+describe('buildSkillsAddCommandArgs', () => {
+  it('passes multiple --skill flags in one add invocation', () => {
+    expect(
+      buildSkillsAddCommandArgs(
+        {
+          sourceRepo: 'callstackincubator/agent-skills',
+          skillNames: [
+            'react-native-best-practices',
+            'upgrading-react-native',
+          ],
+        },
+        'project'
+      )
+    ).toEqual([
+      '-y',
+      'skills',
+      'add',
+      'callstackincubator/agent-skills',
+      '--skill',
+      'react-native-best-practices',
+      '--skill',
+      'upgrading-react-native',
+      '--yes',
+    ]);
+  });
+});
+
+describe('buildSkillsRemoveCommandArgs', () => {
+  it('removes multiple skills in one invocation', () => {
+    expect(
+      buildSkillsRemoveCommandArgs(
+        ['react-native-brownfield-migration', 'react-native-testing'],
+        'global'
+      )
+    ).toEqual([
+      '-y',
+      'skills',
+      'remove',
+      'react-native-brownfield-migration',
+      'react-native-testing',
+      '--yes',
+      '-g',
+    ]);
   });
 });
 
