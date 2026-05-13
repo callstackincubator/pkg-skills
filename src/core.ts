@@ -12,7 +12,7 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { z } from 'zod';
-import {} from "skills"
+
 import lookupTableJson from './lookup-table.json' with { type: 'json' };
 import { warn } from './logger.js';
 
