@@ -3,6 +3,7 @@ import { dirname, join } from 'node:path';
 import { cwd } from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { Argument, Command, CommanderError } from 'commander';
+import { bold, cyan, dim, magenta, white } from 'colorette';
 
 import type { Scope } from './core.js';
 
@@ -40,6 +41,13 @@ type ParsedFlags = {
   version?: boolean;
 };
 
+const COMMAND_CHOICES: CommandName[] = [
+  'auto',
+  'interactive',
+  'report',
+  'list-supported',
+];
+
 const EXAMPLES_HELP = `
 Examples:
   pkg-skills --help                                    # print usage
@@ -49,7 +57,7 @@ Examples:
   pkg-skills auto --global                             # apply recommendations to global skills
   pkg-skills auto --no-remove                          # install missing skills without pruning extras
   pkg-skills report --no-mapping-update                # report using bundled mappings only
-  pkg-skills report --workspaces-only --cwd /a/b       # scan workspace packages only in /a/b
+  pkg-skills report --workspaces-only --cwd /path/to/monorepo  # scan workspace packages only
   pkg-skills list-supported --json                     # list curated mappings as JSON
 `;
 
@@ -61,8 +69,8 @@ export function createProgram(): Command {
     )
     .configureHelp({ sortOptions: true })
     .addArgument(
-      new Argument('[command]', 'Command to run (default: interactive)')
-        .choices(['auto', 'interactive', 'report', 'list-supported'])
+      new Argument('[command]', 'Command to run')
+        .choices(COMMAND_CHOICES)
         .default('interactive')
     )
     .option('--global', 'Compare against and modify global skills')
@@ -104,7 +112,123 @@ export function createProgram(): Command {
 }
 
 export function getUsage(): string {
-  return `${createProgram().helpInformation()}${EXAMPLES_HELP}`;
+  const raw = normalizeCommandArgumentHelp(
+    `${createProgram().helpInformation()}${EXAMPLES_HELP}`
+  );
+  return formatHelpText(raw);
+}
+
+function normalizeCommandArgumentHelp(text: string): string {
+  const choiceLines = COMMAND_CHOICES.map((choice) => `                          ${choice}`).join(
+    '\n'
+  );
+
+  return text.replace(
+    /  command\s+Command to run[^\n]*\n(?:                        .+\n)+/,
+    `  command               Command to run (default: interactive)\n                        choices:\n${choiceLines}\n`
+  );
+}
+
+function formatHelpText(text: string): string {
+  return text
+    .split('\n')
+    .map((line) => {
+      if (line.startsWith('Usage:')) {
+        return bold(magenta(line));
+      }
+
+      if (
+        line === 'Arguments:' ||
+        line === 'Options:' ||
+        line === 'Examples:'
+      ) {
+        return bold(magenta(line));
+      }
+
+      if (line.startsWith('  pkg-skills')) {
+        return formatExampleLine(line);
+      }
+
+      if (line.trim() === 'choices:') {
+        return `                        ${helpDescription('choices:')}`;
+      }
+
+      const commandChoice = line.match(/^ {26}(\S+)$/);
+      if (
+        commandChoice &&
+        COMMAND_CHOICES.includes(commandChoice[1] as CommandName)
+      ) {
+        return `                          ${bold(commandChoice[1])}`;
+      }
+
+      if (/^  (?:--|-\w)/.test(line) || line.startsWith('  command')) {
+        return formatFlagLine(line);
+      }
+
+      if (line.trim() === '') {
+        return line;
+      }
+
+      if (/^ {10,}\S/.test(line)) {
+        return helpDescription(line);
+      }
+
+      if (!line.startsWith(' ')) {
+        return helpDescription(line);
+      }
+
+      return helpDescription(line);
+    })
+    .join('\n');
+}
+
+function helpDescription(text: string): string {
+  return white(text);
+}
+
+function formatFlagLine(line: string): string {
+  const match = line.match(/^(\s*)(.+?)\s{2,}(.+)$/);
+  if (!match) {
+    return helpDescription(line);
+  }
+
+  const [, indent, flag, description] = match;
+  const flagPadding = ' '.repeat(
+    Math.max(2, line.length - indent.length - flag.length - description.length)
+  );
+
+  return `${indent}${cyan(flag)}${flagPadding}${helpDescription(description)}`;
+}
+
+function formatExampleLine(line: string): string {
+  const commentIndex = line.indexOf('#');
+  const indent = line.match(/^\s*/)?.[0] ?? '';
+
+  if (commentIndex === -1) {
+    return `${indent}${highlightExampleCommand(line.trimStart())}`;
+  }
+
+  const commandText = line.slice(indent.length, commentIndex).trimEnd();
+  const comment = line.slice(commentIndex);
+
+  return `${indent}${highlightExampleCommand(commandText)}  ${dim(comment)}`;
+}
+
+function highlightExampleCommand(command: string): string {
+  return command
+    .split(/(\s+|--[\w-]+)/g)
+    .map((part) => {
+      if (part === 'pkg-skills') {
+        return bold(white(part));
+      }
+
+      if (part.startsWith('--')) {
+        return cyan(part);
+      }
+
+      return part;
+    })
+    .join('');
 }
 
 export function getPackageVersion(): string {
