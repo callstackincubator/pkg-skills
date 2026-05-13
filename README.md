@@ -43,26 +43,38 @@ What each command does:
 These flags are supported for all commands:
 
 ```bash
---cwd <path>   Scan and operate on a different project root
---global       Compare against and modify global skills instead of project skills
---no-remove    Keep extra managed skills installed; only add missing skills
---no-mapping-update  Use the bundled local lookup table instead of fetching the latest one
---help, -h     Print usage
+--cwd <path>          Scan and operate on a different project root
+--global              Compare against and modify global skills instead of project skills
+--no-remove           Keep extra managed skills installed; only add missing skills
+--no-mapping-update   Use the bundled local lookup table instead of fetching the latest one
+--json                Emit machine-readable JSON (report and list-supported)
+--quiet               Reduce CLI output; implies --no-banner
+--no-banner           Skip the startup banner
+--version, -v         Print the CLI version
+--workspaces-only     Limit discovery to npm/pnpm workspace packages
+--ignore <glob>       Ignore paths matching a glob (repeatable)
+--ignore-path <file>  Load ignore globs from a file instead of `.pkg-skillsignore`
+--help, -h            Print usage
 ```
 
 `--no-remove` is useful with `auto` and `interactive` when you want recommendations and installs, but do not want the CLI to prune managed skills that are currently not needed by the detected dependencies.
 
 `--no-mapping-update` forces the CLI to use the packaged `lookup-table.json` instead of trying to fetch the latest version from GitHub. This is useful for offline or firewalled environments, deterministic local testing, and debugging.
 
+`--json` is useful in CI to diff recommendations between branches or gate installs in automation.
+
 Examples:
 
 ```bash
 pkg-skills --help
+pkg-skills --version
 pkg-skills report --cwd /path/to/repo
+pkg-skills report --json --no-mapping-update
 pkg-skills auto --global
 pkg-skills auto --no-remove
 pkg-skills report --no-mapping-update
-pkg-skills list-supported
+pkg-skills report --workspaces-only --cwd /path/to/monorepo
+pkg-skills list-supported --json
 ```
 
 By default, the CLI attempts to fetch the newest lookup table from GitHub. If that fails, times out, or the downloaded JSON is invalid, it automatically falls back to the bundled local file.
@@ -104,6 +116,30 @@ See which libraries and skills are included in the curated mappings:
 ```bash
 pkg-skills list-supported
 ```
+
+## Monorepos
+
+By default, pkg-skills recursively discovers every `package.json` under `--cwd` (except built-in skipped directories such as `node_modules`, `dist`, `ios`, and `android`) and **unions** all dependency names across those manifests. A skill is recommended if any scanned package declares a mapped library.
+
+For large monorepos:
+
+- Use `report` to see **which `package.json` files declared each matched library** (`declared in:` lines in the human report, or `matchedLibraryDetails` / `librarySources` in `--json` output).
+- Use `--workspaces-only` to scan only packages listed in the root `package.json` `workspaces` field or `pnpm-workspace.yaml`.
+- Add a `.pkg-skillsignore` file (gitignore-style globs, one per line) or pass `--ignore <glob>` to exclude legacy apps, experiments, or tooling packages.
+- Use `report --json` in CI to compare recommendations without parsing formatted CLI output.
+
+Example for a pnpm monorepo:
+
+```bash
+pkg-skills report --cwd /path/to/monorepo --workspaces-only
+pkg-skills report --cwd /path/to/monorepo --ignore 'experiments/**'
+```
+
+## Troubleshooting
+
+- **`does not exist` for `--cwd`**: pass the repository root directory; the path must exist and be readable.
+- **`Failed to list installed skills`**: ensure Node.js is available and `npx skills list` can run (network may be required on first use).
+- **Unexpected recommendations in a monorepo**: check which package declared the dependency in the report, narrow discovery with `--workspaces-only`, or add ignore globs for unrelated packages.
 
 ## Prior Art
 

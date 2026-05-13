@@ -11,6 +11,8 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 
+import packageJson from '../package.json';
+
 const tempDirectories: string[] = [];
 const testRoot = import.meta.dirname;
 const fixtureRoot = join(testRoot, 'fixtures');
@@ -160,6 +162,120 @@ describe('pkg-skills e2e', () => {
     expect(result.exitCode).toBe(0);
   });
 
+  it('prints package version for --version', () => {
+    const processResult = spawnCli(['--version']);
+
+    expect(processResult.exitCode).toBe(0);
+    expect(processResult.stdout.trim()).toBe(packageJson.version);
+    expect(processResult.stdout).not.toContain('Pkg Skills by Callstack');
+  });
+
+  it('prints machine-readable JSON for report --json', async () => {
+    const result = await runReportWithFixture({
+      fixtureName: 'expo-app',
+      command: ['report', '--json'],
+    });
+
+    expect(result.exitCode).toBe(0);
+    const payload = JSON.parse(result.stdout);
+    expect(payload.schemaVersion).toBe(1);
+    expect(
+      payload.missingSkills.map((skill: { name: string }) => skill.name)
+    ).toContain('vercel-react-native-skills');
+    expect(payload.recommendedSkills[0].matchedLibraryDetails).toBeDefined();
+    expect(result.stdout).not.toContain('Pkg Skills by Callstack');
+  });
+
+  it('suppresses the banner with --no-banner', async () => {
+    const result = await runReportWithFixture({
+      fixtureName: 'expo-app',
+      command: ['report', '--no-banner', '--no-mapping-update'],
+    });
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).not.toContain('Pkg Skills by Callstack');
+    expect(result.stdout).toContain('Recommended Skills');
+  });
+
+  it('shows declaring package.json paths in report output', async () => {
+    const workspaceRoot = await mkdtemp(join(tmpdir(), 'pkg-skills-e2e-'));
+    tempDirectories.push(workspaceRoot);
+
+    const projectDirectory = join(workspaceRoot, 'project');
+    const binDirectory = join(workspaceRoot, 'bin');
+    const logPath = join(workspaceRoot, 'skills-log.json');
+
+    await mkdir(join(projectDirectory, 'apps/mobile'), { recursive: true });
+    await mkdir(join(projectDirectory, 'packages/ui'), { recursive: true });
+    await mkdir(binDirectory, { recursive: true });
+    await writeFile(
+      join(projectDirectory, 'apps/mobile/package.json'),
+      JSON.stringify(
+        {
+          dependencies: {
+            'react-native-reanimated': '^4.0.0',
+          },
+        },
+        null,
+        2
+      ),
+      'utf8'
+    );
+    await writeFile(
+      join(projectDirectory, 'packages/ui/package.json'),
+      JSON.stringify(
+        {
+          peerDependencies: {
+            'react-native': '0.82.0',
+          },
+        },
+        null,
+        2
+      ),
+      'utf8'
+    );
+    await writeFile(logPath, '[]\n', 'utf8');
+
+    const fakeNpxPath = join(binDirectory, 'npx');
+    const fakeNpxTemplate = await readFile(templatePath, 'utf8');
+    await writeFile(
+      fakeNpxPath,
+      fakeNpxTemplate.replace(
+        "'__INSTALLED_SKILLS_JSON__'",
+        JSON.stringify(JSON.stringify([]))
+      ),
+      'utf8'
+    );
+    await chmod(fakeNpxPath, 0o755);
+
+    const processResult = spawnCli(
+      ['report', '--no-mapping-update', '--cwd', projectDirectory],
+      {
+        env: {
+          PATH: `${binDirectory}:${process.env.PATH ?? ''}`,
+          RN_SKILLS_E2E_LOG_PATH: logPath,
+        },
+      }
+    );
+
+    expect(processResult.exitCode).toBe(0);
+    expect(processResult.stdout).toContain('declared in:');
+    expect(processResult.stdout).toContain('apps/mobile/package.json');
+    expect(processResult.stdout).toContain('packages/ui/package.json');
+  });
+
+  it('fails with a helpful message for an invalid --cwd', () => {
+    const processResult = spawnCli([
+      'report',
+      '--cwd',
+      '/tmp/pkg-skills-missing-directory',
+      '--no-mapping-update',
+    ]);
+
+    expect(processResult.exitCode).toBe(1);
+    expect(processResult.stderr).toContain('does not exist');
+  });
+
   it('does not remove extra managed skills when --no-remove is passed', async () => {
     const result = await runAutoWithFixture({
       fixtureName: 'expo-app',
@@ -262,4 +378,48 @@ async function runAutoWithFixture(options: {
   );
 
   return processResult;
+}
+
+async function runReportWithFixture(options: {
+  fixtureName: string;
+  command: string[];
+}) {
+  const workspaceRoot = await mkdtemp(join(tmpdir(), 'pkg-skills-e2e-'));
+  tempDirectories.push(workspaceRoot);
+
+  const fixturePath = join(fixtureRoot, options.fixtureName, 'package.json');
+  const projectDirectory = join(workspaceRoot, 'project');
+  const binDirectory = join(workspaceRoot, 'bin');
+  const logPath = join(workspaceRoot, 'skills-log.json');
+
+  await mkdir(projectDirectory, { recursive: true });
+  await mkdir(binDirectory, { recursive: true });
+  await writeFile(
+    join(projectDirectory, 'package.json'),
+    await readFile(fixturePath, 'utf8'),
+    'utf8'
+  );
+  await writeFile(logPath, '[]\n', 'utf8');
+
+  const fakeNpxPath = join(binDirectory, 'npx');
+  const fakeNpxTemplate = await readFile(templatePath, 'utf8');
+  await writeFile(
+    fakeNpxPath,
+    fakeNpxTemplate.replace(
+      "'__INSTALLED_SKILLS_JSON__'",
+      JSON.stringify(JSON.stringify([]))
+    ),
+    'utf8'
+  );
+  await chmod(fakeNpxPath, 0o755);
+
+  return spawnCli(
+    [...options.command, '--no-mapping-update', '--cwd', projectDirectory],
+    {
+      env: {
+        PATH: `${binDirectory}:${process.env.PATH ?? ''}`,
+        RN_SKILLS_E2E_LOG_PATH: logPath,
+      },
+    }
+  );
 }
