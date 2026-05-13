@@ -41,7 +41,8 @@
     "start": "npx tsx src/index.ts",
     "sync:lookup": "node ./scripts/sync-lookup.mjs",
     "test": "npx vitest run",
-    "test:watch": "npx vitest watch"
+    "test:watch": "npx vitest watch",
+    "publish:npm": "npm publish --access public"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.8",
