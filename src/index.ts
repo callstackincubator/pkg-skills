@@ -4,6 +4,8 @@ import { relative, resolve } from 'node:path';
 import { cancel, intro, isCancel, multiselect, outro } from '@clack/prompts';
 import { dim, gray, italic, white, magenta, red } from 'colorette';
 
+import { showInteractiveKeyboardHints } from './interactive-hints.js';
+
 import {
   buildSkillPlan,
   buildSkillsAddCommandArgs,
@@ -296,6 +298,10 @@ async function run(): Promise<void> {
     return;
   }
 
+  if (options.command === 'interactive' && !useQuiet) {
+    showInteractiveKeyboardHints();
+  }
+
   const installRefs = await askForInstalls(
     plan.missingSkills.map((skill) => skill.ref),
     lookup
@@ -467,6 +473,7 @@ async function askForInstalls(
   }
   const selection = await multiselect<string>({
     message: 'Which missing skills should pkg-skills install?',
+    withGuide: true,
     options: skillRefs.map((ref) => {
       const [sourceRepo, skillName] = ref.split(':');
       const source = lookup.sources[sourceRepo];
@@ -495,6 +502,7 @@ async function askForRemovals(skillNames: string[]): Promise<string[]> {
 
   const selection = await multiselect<string>({
     message: 'Which extra skills should pkg-skills remove?',
+    withGuide: true,
     options: skillNames.map((skillName) => ({
       value: skillName,
       label: skillName,
@@ -517,6 +525,7 @@ async function askForUpdates(skillNames: string[]): Promise<string[]> {
 
   const selection = await multiselect<string>({
     message: 'Which installed skills should pkg-skills update?',
+    withGuide: true,
     options: skillNames.map((skillName) => ({
       value: skillName,
       label: skillName,

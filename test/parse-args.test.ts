@@ -101,6 +101,7 @@ describe('parseArgs', () => {
     expect(usage).toContain('--workspaces-only');
     expect(usage).toContain('--ignore');
     expect(usage).toContain('Examples:');
-    expect(usage).toContain('pkg-skills auto --no-remove');
+    expect(usage).toContain('pkg-skills interactive');
+    expect(usage).toContain('Space, a, i, Enter');
   });
 });

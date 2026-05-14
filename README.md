@@ -50,7 +50,7 @@ pkg-skills list-supported   # print the curated library-to-skill mappings bundle
 What each command does:
 
 - `pkg-skills`: defaults to `interactive`
-- `interactive`: print the report and ask which skills to update, install, and remove
+- `interactive`: print the report and ask which skills to update, install, or remove (`↑/↓` navigate, `Space` toggle, `a` toggle all, `i` invert, `Enter` confirm)
 - `auto`: update installed recommended skills, install missing skills, and remove extra managed pkg skills without prompts
 - `report`: print detected libraries, recommended skills, missing skills, and extra managed pkg skills without changing anything
 - `update`: update installed managed pkg skills to their latest versions via the Vercel Skills CLI
