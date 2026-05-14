@@ -2,7 +2,7 @@
 import { execFileSync } from 'node:child_process';
 import { relative, resolve } from 'node:path';
 import { cancel, intro, isCancel, multiselect, outro } from '@clack/prompts';
-import { dim, gray, italic, white } from 'colorette';
+import { dim, gray, italic, white, magenta, red } from 'colorette';
 
 import {
   buildSkillPlan,
@@ -18,7 +18,16 @@ import {
   validateRootDirectory,
 } from './core.js';
 import type { InstalledSkill, Scope, SkillPlan } from './core.js';
-import { error, info, printBanner, section, setVerboseLogging, success, verbose, warn } from './logger.js';
+import {
+  error,
+  info,
+  printBanner,
+  section,
+  setVerboseLogging,
+  success,
+  verbose,
+  warn,
+} from './logger.js';
 import { getPackageVersion, getUsage, parseArgs } from './parse-args.js';
 import type { CliOptions } from './parse-args.js';
 
@@ -187,7 +196,9 @@ async function run(): Promise<void> {
   verbose(
     `Discovered ${scan.packageJsonPaths.length} package.json file(s) and ${scan.libraries.length} dependency name(s)`
   );
-  verbose(`Found ${installedSkills.length} installed ${options.scope} skill(s)`);
+  verbose(
+    `Found ${installedSkills.length} installed ${options.scope} skill(s)`
+  );
   verbose(
     `Plan: ${plan.recommendedSkills.length} recommended, ${plan.missingSkills.length} missing, ${plan.extraInstalledSkills.length} extra managed`
   );
@@ -326,7 +337,7 @@ function printPlan(plan: SkillPlan, scope: Scope, rootDirectory: string): void {
         .join('\n  ');
 
       process.stdout.write(
-        `- ${white(skill.name)} ${dim('from')} ${gray(skill.sourceRepo)}\n` +
+        `- ${magenta(skill.name)} ${dim('from')} ${gray(skill.sourceRepo)}\n` +
           `  ${dim('matches:')}\n  ${libraryLines}\n` +
           `  ${dim('reason:')} ${gray(skill.description ?? '')}\n\n`
       );
@@ -338,7 +349,7 @@ function printPlan(plan: SkillPlan, scope: Scope, rootDirectory: string): void {
     success('No missing skills.');
   } else {
     for (const skill of plan.missingSkills) {
-      process.stdout.write(`- ${skill.name} from ${skill.sourceRepo}\n`);
+      process.stdout.write(`- ${red(skill.name)} from ${skill.sourceRepo}\n`);
     }
   }
 
