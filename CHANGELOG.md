@@ -1,5 +1,13 @@
 # pkg-skills
 
+## 0.2.3
+
+### Patch Changes
+
+- [`1a417d6`](https://github.com/callstackincubator/pkg-skills/commit/1a417d6caca09ad94ae57f7b66e858e6b12b8f33) Thanks [@artus9033](https://github.com/artus9033)! - chore: updated lookup-table
+
+- [`2c1431e`](https://github.com/callstackincubator/pkg-skills/commit/2c1431e4a4c26e35b4cb725290de383d015c8089) Thanks [@artus9033](https://github.com/artus9033)! - fix: do not swallow errors in CLI main
+
 ## 0.2.2
 
 ### Patch Changes
