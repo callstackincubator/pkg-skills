@@ -82,7 +82,7 @@ describe('pkg-skills e2e', () => {
         ['callstackincubator/agent-skills', 'react-native-best-practices'],
         ['callstack/react-native-testing-library', 'react-native-testing'],
         ['callstackincubator/agent-skills', 'upgrading-react-native'],
-        ['vercel-labs/agent-skills', 'react-native-skills'],
+        ['vercel-labs/agent-skills', 'vercel-react-native-skills'],
       ],
       expectedRemovals: [],
       command: ['auto'],
@@ -171,7 +171,7 @@ describe('pkg-skills e2e', () => {
     expect(payload.schemaVersion).toBe(1);
     expect(
       payload.missingSkills.map((skill: { name: string }) => skill.name)
-    ).toContain('react-native-skills');
+    ).toContain('vercel-react-native-skills');
     expect(payload.recommendedSkills[0].matchedLibraryDetails).toBeDefined();
     expect(result.stdout).not.toContain('Pkg Skills by Callstack');
   });
@@ -353,7 +353,7 @@ describe('pkg-skills e2e', () => {
         ['callstackincubator/agent-skills', 'react-native-best-practices'],
         ['callstack/react-native-testing-library', 'react-native-testing'],
         ['callstackincubator/agent-skills', 'upgrading-react-native'],
-        ['vercel-labs/agent-skills', 'react-native-skills'],
+        ['vercel-labs/agent-skills', 'vercel-react-native-skills'],
       ],
       expectedRemovals: [],
       command: ['auto', '--no-remove'],

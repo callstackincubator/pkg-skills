@@ -121,7 +121,7 @@ async function fetchRemoteSkills(repo) {
 
     const skillMarkdown = await response.text();
     skills.push({
-      name: directory,
+      name: extractName(skillMarkdown, directory),
       description: extractDescription(skillMarkdown),
     });
   }
@@ -211,13 +211,41 @@ async function buildLicenseSkillRepositoriesSection(sources) {
   return sections.join('\n\n');
 }
 
-function extractDescription(skillMarkdown) {
+function parseFrontmatter(skillMarkdown) {
   const frontmatterMatch = skillMarkdown.match(/^---\n([\s\S]*?)\n---/);
   if (!frontmatterMatch) {
-    return '';
+    return null;
   }
 
-  const frontmatterLines = frontmatterMatch[1].split('\n');
+  return frontmatterMatch[1].split('\n');
+}
+
+function extractName(skillMarkdown, fallback) {
+  const frontmatterLines = parseFrontmatter(skillMarkdown);
+  if (!frontmatterLines) {
+    return fallback;
+  }
+
+  for (const line of frontmatterLines) {
+    const nameMatch = line.match(/^name:\s*(.+)$/);
+    if (!nameMatch) {
+      continue;
+    }
+
+    const value = nameMatch[1].trim();
+    if (value && !['>', '|', '>-', '|-'].includes(value)) {
+      return value;
+    }
+  }
+
+  return fallback;
+}
+
+function extractDescription(skillMarkdown) {
+  const frontmatterLines = parseFrontmatter(skillMarkdown);
+  if (!frontmatterLines) {
+    return '';
+  }
 
   for (let index = 0; index < frontmatterLines.length; index += 1) {
     const line = frontmatterLines[index];
