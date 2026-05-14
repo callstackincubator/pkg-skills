@@ -1,5 +1,13 @@
 # pkg-skills
 
+## 0.3.1
+
+### Patch Changes
+
+- [`001b965`](https://github.com/callstackincubator/pkg-skills/commit/001b9658a098227314b4525642adaa5337ff6d6c) Thanks [@artus9033](https://github.com/artus9033)! - feat: keyboard instructions for interactive mode
+
+- [`f01c4b4`](https://github.com/callstackincubator/pkg-skills/commit/f01c4b43766bea7751411d2a65e35ed75dc0a86c) Thanks [@artus9033](https://github.com/artus9033)! - feat: interactive mode to ask for intended actions first
+
 ## 0.3.0
 
 ### Minor Changes
