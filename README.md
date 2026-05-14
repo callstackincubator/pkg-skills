@@ -170,6 +170,13 @@ This tool uses the following skills repositories:
 - [Vercel Agent Skills](https://github.com/vercel-labs/agent-skills)
 <!-- END:skill-repositories - do not modify -->
 
+## Special Thanks
+
+Special thanks to the following contributors & testers who helped make this project happen:
+
+- [@krozniata](https://github.com/krozniata)
+- [@lech-kalinowski](https://github.com/lech-kalinowski)
+
 ---
 
 ## Made with ❤️ at Callstack
