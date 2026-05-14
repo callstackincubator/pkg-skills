@@ -1,5 +1,17 @@
 # pkg-skills
 
+## 0.2.4
+
+### Patch Changes
+
+- [`6c5cc0d`](https://github.com/callstackincubator/pkg-skills/commit/6c5cc0df33417d5bb37a99bca6800d05bf95cd35) Thanks [@artus9033](https://github.com/artus9033)! - feat: add verbose logging flag
+
+- [`cf525e8`](https://github.com/callstackincubator/pkg-skills/commit/cf525e8bc4f45d04d4d9394de7e3b3ab7dd7ce0c) Thanks [@artus9033](https://github.com/artus9033)! - feat: match all skills with libraries
+
+- [`f3afbc5`](https://github.com/callstackincubator/pkg-skills/commit/f3afbc580d2977027d97dcf400c1c0d058514370) Thanks [@artus9033](https://github.com/artus9033)! - fix: skill reference names in lookup-table parsed from SKILL.md instead of based on directory names
+
+- [`eb53b0a`](https://github.com/callstackincubator/pkg-skills/commit/eb53b0ae1e2b70fb7f9cfe174af93260c620b94b) Thanks [@artus9033](https://github.com/artus9033)! - feat: better coloring of output
+
 ## 0.2.3
 
 ### Patch Changes
