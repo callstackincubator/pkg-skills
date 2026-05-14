@@ -55,6 +55,8 @@ This runs [`scripts/sync-lookup.mjs`](scripts/sync-lookup.mjs), which:
 3. Regenerates the skills repository list in [`README.md`](README.md) between comment markers.
 4. Appends upstream license text to [`LICENSE`](LICENSE) between the same markers, one markdown section per repository.
 
+`sync:lookup` updates `sources` only. When a new skill appears there, add at least one `libraries` entry in [`src/lookup-table.json`](src/lookup-table.json) that references it (`repo:skill-name`). Tests enforce this: every skill in `sources` must appear in some `skillRefs` array.
+
 This is run automatically by the GitHub Actions workflow [`update-vendored-skills.yml`](.github/workflows/update-vendored-skills.yml), every 2 days at 2:19 AM UTC. The workflow opens a PR.
 
 ## Runtime lookup table updates
