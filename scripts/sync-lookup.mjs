@@ -14,8 +14,12 @@ const remoteSources = [
     displayName: 'Callstack Agent Skills',
   },
   {
+    repo: 'callstackincubator/agent-device',
+    displayName: 'Callstack Agent Device Skills',
+  },
+  {
     repo: 'software-mansion-labs/skills',
-    displayName: 'Software Mansion Skills',
+    displayName: "Software Mansion's Skills",
   },
   {
     repo: 'callstack/react-native-testing-library',

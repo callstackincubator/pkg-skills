@@ -1,6 +1,6 @@
 {
   "catalogVersion": 1,
-  "lastSyncedAt": "2026-03-31T14:55:12.244Z",
+  "lastSyncedAt": "2026-05-14T08:42:35.797Z",
   "sources": {
     "callstackincubator/agent-skills": {
       "repo": "callstackincubator/agent-skills",
@@ -15,16 +15,30 @@
           "description": "GitHub Actions workflow patterns for React Native simulator/emulator build artifacts."
         },
         {
-          "name": "upgrading-react-native",
-          "description": "React Native upgrade workflow: templates, dependencies, and common pitfalls."
-        },
-        {
           "name": "react-native-best-practices",
           "description": "React Native optimization best practices from Callstack."
         },
         {
           "name": "react-native-brownfield-migration",
           "description": "Incremental migration strategy to adopt React Native or Expo in native apps using @callstack/react-native-brownfield, with setup, packaging, and phased integration steps."
+        },
+        {
+          "name": "upgrading-react-native",
+          "description": "React Native upgrade workflow: templates, dependencies, and common pitfalls."
+        }
+      ]
+    },
+    "callstackincubator/agent-device": {
+      "repo": "callstackincubator/agent-device",
+      "displayName": "Callstack Agent Device Skills",
+      "skills": [
+        {
+          "name": "agent-device",
+          "description": "Automates Apple-platform apps (iOS, tvOS, macOS) and Android devices. Use when navigating apps, taking snapshots/screenshots, tapping, typing, scrolling, extracting UI info, collecting logs/network/perf evidence, or planning agent-device CLI commands."
+        },
+        {
+          "name": "dogfood",
+          "description": "Systematically explore and test a mobile app on iOS/Android with agent-device to find bugs, UX issues, and other problems. Use when asked to dogfood, QA, exploratory test, find issues, bug hunt, or test this app on mobile."
         }
       ]
     },
@@ -33,12 +47,20 @@
       "displayName": "Software Mansion Skills",
       "skills": [
         {
+          "name": "expo-horizon",
+          "description": "\"Software Mansion's guide for migrating Expo SDK apps to Meta Quest using expo-horizon packages. Use when adding Meta Quest or Meta Horizon OS support to an existing Expo or React Native project. Trigger on: Meta Quest, Horizon OS, Quest 2, Quest 3, Quest 3S, VR app, expo-horizon-core, expo-horizon-location, expo-horizon-notifications, build flavors for Quest, panel sizing, VR headtracking, Horizon App ID, quest build variant, isHorizonDevice, isHorizonBuild, migrate expo-location to Quest, migrate expo-notifications to Quest, Meta Horizon Store publishing, or any task involving running an Expo app on Meta Quest hardware.\""
+        },
+        {
           "name": "radon-mcp",
           "description": "Best practices for using Radon IDE's MCP tools when developing, debugging, and inspecting React Native and Expo apps."
         },
         {
           "name": "react-native-best-practices",
           "description": "Software Mansion's best practices for production React Native and Expo apps on the New Architecture."
+        },
+        {
+          "name": "typegpu",
+          "description": "TypeGPU is type-safe WebGPU in TypeScript. Use whenever the user writes, debugs, or designs TypeGPU code: 'use gpu' shader functions, tgpu.fn, buffers, textures, bind groups, compute and render pipelines, vertex layouts, slots, accessors, and any TypeGPU API. Shader logic and CPU-side resources are tightly coupled - handle both sides here even if the user only mentions one (e.g. \"how do I write a shader\", \"how do I create a buffer\"). Trigger on any mention of typegpu, tgpu, \"use gpu\", TypedGPU, or WebGPU code written using TypeGPU's schema API (d.*, tgpu.*, std.*). Do NOT trigger for raw WebGPU (using GPUDevice/GPURenderPipeline directly without tgpu), WGSL-only questions, Three.js, Babylon.js, or WebGL."
         }
       ]
     },
@@ -52,27 +74,37 @@
         }
       ]
     },
-    "callstackincubator/agent-device": {
-      "repo": "callstackincubator/agent-device",
-      "displayName": "Agent Device",
-      "skills": [
-        {
-          "name": "agent-device",
-          "description": "Automates interactions for Apple-platform apps (iOS, tvOS, macOS) and Android devices."
-        },
-        {
-          "name": "dogfood",
-          "description": "Systematically explore and test a mobile app on iOS/Android with agent-device to find bugs, UX issues, and other problems."
-        }
-      ]
-    },
     "vercel-labs/agent-skills": {
       "repo": "vercel-labs/agent-skills",
       "displayName": "Vercel Agent Skills",
       "skills": [
         {
-          "name": "vercel-react-native-skills",
-          "description": "Vercel's collection of React Native and Expo best practices for building performant mobile apps."
+          "name": "composition-patterns",
+          "description": "React composition patterns that scale. Use when refactoring components with boolean prop proliferation, building flexible component libraries, or designing reusable APIs. Triggers on tasks involving compound components, render props, context providers, or component architecture. Includes React 19 API changes."
+        },
+        {
+          "name": "deploy-to-vercel",
+          "description": "Deploy applications and websites to Vercel. Use when the user requests deployment actions like \"deploy my app\", \"deploy and give me the link\", \"push this live\", or \"create a preview deployment\"."
+        },
+        {
+          "name": "react-best-practices",
+          "description": "React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements."
+        },
+        {
+          "name": "react-native-skills",
+          "description": "React Native and Expo best practices for building performant mobile apps. Use when building React Native components, optimizing list performance, implementing animations, or working with native modules. Triggers on tasks involving React Native, Expo, mobile performance, or native platform APIs."
+        },
+        {
+          "name": "react-view-transitions",
+          "description": "Guide for implementing smooth, native-feeling animations using React's View Transition API (`<ViewTransition>` component, `addTransitionType`, and CSS view transition pseudo-elements). Use this skill whenever the user wants to add page transitions, animate route changes, create shared element animations, animate enter/exit of components, animate list reorder, implement directional (forward/back) navigation animations, or integrate view transitions in Next.js. Also use when the user mentions view transitions, `startViewTransition`, `ViewTransition`, transition types, or asks about animating between UI states in React without third-party animation libraries."
+        },
+        {
+          "name": "vercel-cli-with-tokens",
+          "description": "Deploy and manage projects on Vercel using token-based authentication. Use when working with Vercel CLI using access tokens rather than interactive login — e.g. \"deploy to vercel\", \"set up vercel\", \"add environment variables to vercel\"."
+        },
+        {
+          "name": "web-design-guidelines",
+          "description": "Review UI code for Web Interface Guidelines compliance. Use when asked to \"review my UI\", \"check accessibility\", \"audit design\", \"review UX\", or \"check my site against best practices\"."
         }
       ]
     }

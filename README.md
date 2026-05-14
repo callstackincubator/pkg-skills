@@ -21,11 +21,11 @@ npm i -g pkg-skills
 ## Commands
 
 ```bash
-pkg-skills
-pkg-skills auto
-pkg-skills report
-pkg-skills interactive
-pkg-skills list-supported
+pkg-skills                  # interactive mode (print the report and ask which missing skills to install and which extra skills to remove)
+pkg-skills auto             # auto mode (install all missing skills and remove extra managed pkg skills without prompts)
+pkg-skills report           # print detected libraries, recommended skills, missing skills, and extra managed pkg skills without changing anything
+pkg-skills interactive      # print the report and ask which missing skills to install and which extra skills to remove
+pkg-skills list-supported   # print the curated library-to-skill mappings bundled in the lookup table
 ```
 
 What each command does:
@@ -43,19 +43,19 @@ What each command does:
 These flags are supported for all commands:
 
 ```bash
---cwd <path>          Scan and operate on a different project root
---global              Compare against and modify global skills instead of project skills
---no-remove           Keep extra managed skills installed; only add missing skills
---no-mapping-update   Use the bundled local lookup table instead of fetching the latest one
---json                Emit machine-readable JSON (report and list-supported)
---dry-run             Show installs and removals without running the Vercel Skills CLI
---quiet               Reduce CLI output; implies --no-banner
---no-banner           Skip the startup banner
---version, -v         Print the CLI version
---workspaces-only     Limit discovery to npm/pnpm workspace packages
---ignore <glob>       Ignore paths matching a glob (repeatable)
---ignore-path <file>  Load ignore globs from a file instead of `.pkg-skillsignore`
---help, -h            Print usage
+--cwd <path>          # Scan and operate on a different project root
+--global              # Compare against and modify global skills instead of project skills
+--no-remove           # Keep extra managed skills installed; only add missing skills
+--no-mapping-update   # Use the bundled local lookup table instead of fetching the latest one
+--json                # Emit machine-readable JSON (report and list-supported)
+--dry-run             # Show installs and removals without running the Vercel Skills CLI
+--quiet               # Reduce CLI output; implies --no-banner
+--no-banner           # Skip the startup banner
+--version, -v         # Print the CLI version
+--workspaces-only     # Limit discovery to npm/pnpm workspace packages
+--ignore <glob>       # Ignore paths matching a glob (repeatable)
+--ignore-path <file>  # Load ignore globs from a file instead of `.pkg-skillsignore`
+--help, -h            # Print usage
 ```
 
 `--dry-run` is useful with `auto` and `interactive` to preview installs and removals without changing installed skills.
@@ -153,6 +153,14 @@ pkg-skills report --cwd /path/to/monorepo --ignore 'experiments/**'
 ## Prior Art
 
 This tool uses the [Vercel `skills` CLI](https://vercel.com/docs/agent-resources/skills) under the hood.
+
+This tool uses the following skills repositories:
+
+- [Callstack Agent Skills](https://github.com/callstackincubator/agent-skills)
+- [Callstack Agent Device Skills](https://github.com/callstackincubator/agent-device)
+- [Software Mansion's Skills](https://github.com/software-mansion-labs/skills)
+- [React Native Testing Library Skills](https://github.com/callstack/react-native-testing-library)
+- [Vercel Agent Skills](https://github.com/vercel-labs/agent-skills)
 
 ---
 

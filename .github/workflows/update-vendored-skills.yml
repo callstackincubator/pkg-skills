@@ -27,7 +27,7 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       - name: Sync pkg-skills lookup table
-        run: node ./packages/pkg-skills/scripts/sync-lookup.mjs
+        run: node ./scripts/sync-lookup.mjs
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@v7
