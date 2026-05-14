@@ -68,7 +68,7 @@ Examples:
   pkg-skills report --no-mapping-update                # report using bundled mappings only
   pkg-skills report --workspaces-only --cwd /path/to/monorepo  # scan workspace packages only
   pkg-skills list-supported --json                     # list curated mappings as JSON
-  pkg-skills interactive                              # pick skills to update, install, or remove (↑/↓, Space, a, i, Enter)
+  pkg-skills interactive                              # choose update/install/remove groups, then pick skills
 `;
 
 export function createProgram(): Command {

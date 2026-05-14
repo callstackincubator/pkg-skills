@@ -102,6 +102,6 @@ describe('parseArgs', () => {
     expect(usage).toContain('--ignore');
     expect(usage).toContain('Examples:');
     expect(usage).toContain('pkg-skills interactive');
-    expect(usage).toContain('Space, a, i, Enter');
+    expect(usage).toContain('choose update/install/remove groups');
   });
 });

@@ -14,7 +14,7 @@ It scans every `package.json` under the target directory, compares discovered li
 - 🔍 **Dependency scan** — discovers libraries from every `package.json` under your project root
 - 🗺️ **Curated mappings** — links React Native packages to skills from Callstack, Software Mansion, Vercel, and more
 - 📋 **Report** — shows recommended, missing, and extra skills without changing anything
-- 🙋 **Interactive** — review the report, then pick what to update, install, or remove
+- 🙋 **Interactive** — choose action groups (update, install, remove), then pick skills in each
 - ⚡ **Auto** — updates, installs, and prunes managed skills in one non-interactive pass
 - 🔄 **Update** — refreshes installed managed skills to their latest versions
 - 🏢 **Monorepo-ready** — workspace-only scanning, path ignores, and per-package `declared in` details
@@ -50,7 +50,7 @@ pkg-skills list-supported   # print the curated library-to-skill mappings bundle
 What each command does:
 
 - `pkg-skills`: defaults to `interactive`
-- `interactive`: print the report and ask which skills to update, install, or remove (`↑/↓` navigate, `Space` toggle, `a` toggle all, `i` invert, `Enter` confirm)
+- `interactive`: print the report, choose action groups (update, install, remove), then pick skills in each (`↑/↓` navigate, `Space` toggle, `a` toggle all, `i` invert, `Enter` confirm)
 - `auto`: update installed recommended skills, install missing skills, and remove extra managed pkg skills without prompts
 - `report`: print detected libraries, recommended skills, missing skills, and extra managed pkg skills without changing anything
 - `update`: update installed managed pkg skills to their latest versions via the Vercel Skills CLI

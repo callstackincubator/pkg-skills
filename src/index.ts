@@ -4,7 +4,11 @@ import { relative, resolve } from 'node:path';
 import { cancel, intro, isCancel, multiselect, outro } from '@clack/prompts';
 import { dim, gray, italic, white, magenta, red } from 'colorette';
 
-import { showInteractiveKeyboardHints } from './interactive-hints.js';
+import {
+  buildInteractiveActionOptions,
+  showInteractiveKeyboardHints,
+} from './interactive-hints.js';
+import type { InteractiveAction } from './interactive-hints.js';
 
 import {
   buildSkillPlan,
@@ -302,16 +306,31 @@ async function run(): Promise<void> {
     showInteractiveKeyboardHints();
   }
 
-  const installRefs = await askForInstalls(
-    plan.missingSkills.map((skill) => skill.ref),
-    lookup
+  const updatableSkillNames = getInstalledRecommendedSkillNames(
+    plan,
+    installedSkills
   );
-  const removalNames = await askForRemovals(
-    options.remove ? plan.extraInstalledSkills.map((skill) => skill.name) : []
-  );
-  const updateNames = await askForUpdates(
-    getInstalledRecommendedSkillNames(plan, installedSkills)
-  );
+  const installRefsAvailable = plan.missingSkills.map((skill) => skill.ref);
+  const removalNamesAvailable = options.remove
+    ? plan.extraInstalledSkills.map((skill) => skill.name)
+    : [];
+
+  const selectedActions = await askForActionGroups({
+    updateCount: updatableSkillNames.length,
+    installCount: installRefsAvailable.length,
+    removeCount: removalNamesAvailable.length,
+    removeEnabled: options.remove,
+  });
+
+  const updateNames = selectedActions.includes('update')
+    ? await askForUpdates(updatableSkillNames)
+    : [];
+  const installRefs = selectedActions.includes('install')
+    ? await askForInstalls(installRefsAvailable, lookup)
+    : [];
+  const removalNames = selectedActions.includes('remove')
+    ? await askForRemovals(removalNamesAvailable)
+    : [];
 
   await applyChanges({
     rootDirectory: options.rootDirectory,
@@ -460,6 +479,30 @@ function printPlanJson(plan: SkillPlan, options: CliOptions): void {
       2
     )}\n`
   );
+}
+
+async function askForActionGroups(options: {
+  updateCount: number;
+  installCount: number;
+  removeCount: number;
+  removeEnabled: boolean;
+}): Promise<InteractiveAction[]> {
+  const actionOptions = buildInteractiveActionOptions(options);
+  const hasSelectableActions = actionOptions.some((option) => !option.disabled);
+
+  const selection = await multiselect<InteractiveAction>({
+    message: 'Which actions should pkg-skills run?',
+    withGuide: true,
+    required: hasSelectableActions,
+    options: actionOptions,
+  });
+
+  if (isCancel(selection)) {
+    cancel('Interactive action selection cancelled.');
+    process.exit(1);
+  }
+
+  return selection;
 }
 
 async function askForInstalls(
