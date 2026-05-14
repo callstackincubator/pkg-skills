@@ -19,6 +19,7 @@ export type CliOptions = {
   disableRemoteLookup: boolean;
   json: boolean;
   quiet: boolean;
+  verbose: boolean;
   noBanner: boolean;
   dryRun: boolean;
   workspacesOnly: boolean;
@@ -33,6 +34,7 @@ type ParsedFlags = {
   mappingUpdate?: boolean;
   json?: boolean;
   quiet?: boolean;
+  verbose?: boolean;
   dryRun?: boolean;
   banner?: boolean;
   workspacesOnly?: boolean;
@@ -89,6 +91,7 @@ export function createProgram(): Command {
     )
     .option('--json', 'Emit machine-readable JSON (report and list-supported)')
     .option('--quiet', 'Reduce CLI output')
+    .option('--verbose', 'Print detailed lookup, scan, and apply logs')
     .option(
       '--dry-run',
       'Show installs and removals without running the Vercel Skills CLI'
@@ -292,6 +295,7 @@ export function parseArgs(argv: string[]): CliOptions {
     disableRemoteLookup: flags.mappingUpdate === false,
     json: Boolean(flags.json),
     quiet: Boolean(flags.quiet),
+    verbose: Boolean(flags.verbose) && !flags.quiet,
     noBanner: Boolean(flags.quiet || flags.banner === false),
     dryRun: Boolean(flags.dryRun),
     workspacesOnly: Boolean(flags.workspacesOnly),
@@ -315,6 +319,7 @@ function createDefaultOptions(overrides: Partial<CliOptions> = {}): CliOptions {
     disableRemoteLookup: false,
     json: false,
     quiet: false,
+    verbose: false,
     noBanner: false,
     dryRun: false,
     workspacesOnly: false,

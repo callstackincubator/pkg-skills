@@ -47,6 +47,7 @@ describe('parseArgs', () => {
       disableRemoteLookup: true,
       json: true,
       quiet: false,
+      verbose: false,
       noBanner: false,
       dryRun: false,
       workspacesOnly: true,
@@ -69,6 +70,16 @@ describe('parseArgs', () => {
     });
   });
 
+  it('parses verbose and disables it with quiet', () => {
+    expect(parseArgs(['report', '--verbose'])).toMatchObject({
+      verbose: true,
+    });
+    expect(parseArgs(['report', '--verbose', '--quiet'])).toMatchObject({
+      verbose: false,
+      quiet: true,
+    });
+  });
+
   it('throws for unknown arguments', () => {
     expect(() => parseArgs(['report', '--unknown'])).toThrow(/unknown option/);
   });
@@ -78,6 +89,7 @@ describe('parseArgs', () => {
 
     expect(usage).toContain('--json');
     expect(usage).toContain('--dry-run');
+    expect(usage).toContain('--verbose');
     expect(usage).toContain('--workspaces-only');
     expect(usage).toContain('--ignore');
     expect(usage).toContain('Examples:');

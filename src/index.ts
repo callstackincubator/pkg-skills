@@ -18,7 +18,7 @@ import {
   validateRootDirectory,
 } from './core.js';
 import type { InstalledSkill, Scope, SkillPlan } from './core.js';
-import { error, info, printBanner, section, success, warn } from './logger.js';
+import { error, info, printBanner, section, setVerboseLogging, success, verbose, warn } from './logger.js';
 import { getPackageVersion, getUsage, parseArgs } from './parse-args.js';
 import type { CliOptions } from './parse-args.js';
 
@@ -94,15 +94,29 @@ async function run(): Promise<void> {
   const useJson = options.json;
   const useQuiet = options.quiet || useJson;
 
+  setVerboseLogging(options.verbose && !useQuiet);
+
   if (!options.noBanner && !useJson) {
     printBanner();
+  }
+
+  if (options.disableRemoteLookup) {
+    verbose('Skipping remote lookup table fetch (--no-mapping-update)');
   }
 
   const lookup = await getLookupTableWithOptions({
     disableRemoteLookup: options.disableRemoteLookup,
   });
 
-  if (!useQuiet && getLookupTableFetchStatus() === 'up-to-date') {
+  const lookupFetchStatus = getLookupTableFetchStatus();
+  if (lookupFetchStatus) {
+    verbose(`Lookup table resolution: ${lookupFetchStatus}`);
+  }
+  verbose(
+    `Loaded lookup catalogVersion ${lookup.catalogVersion}, lastSyncedAt ${lookup.lastSyncedAt}`
+  );
+
+  if (!useQuiet && lookupFetchStatus === 'up-to-date') {
     info('Lookup table is up to date.');
   }
 
@@ -169,6 +183,14 @@ async function run(): Promise<void> {
     options.rootDirectory
   );
   const plan = buildSkillPlan(scan, installedSkills, lookup);
+
+  verbose(
+    `Discovered ${scan.packageJsonPaths.length} package.json file(s) and ${scan.libraries.length} dependency name(s)`
+  );
+  verbose(`Found ${installedSkills.length} installed ${options.scope} skill(s)`);
+  verbose(
+    `Plan: ${plan.recommendedSkills.length} recommended, ${plan.missingSkills.length} missing, ${plan.extraInstalledSkills.length} extra managed`
+  );
 
   if (useJson) {
     printPlanJson(plan, options);
@@ -447,7 +469,9 @@ async function applyChanges(options: {
       );
     }
     if (!dryRun) {
-      execFileSync('npx', buildSkillsAddCommandArgs(batch, options.scope), {
+      const addArgs = buildSkillsAddCommandArgs(batch, options.scope);
+      verbose(`Running npx ${addArgs.join(' ')}`);
+      execFileSync('npx', addArgs, {
         cwd: options.rootDirectory,
         stdio: 'inherit',
       });
@@ -463,14 +487,15 @@ async function applyChanges(options: {
       );
     }
     if (!dryRun) {
-      execFileSync(
-        'npx',
-        buildSkillsRemoveCommandArgs(options.removals, options.scope),
-        {
-          cwd: options.rootDirectory,
-          stdio: 'inherit',
-        }
+      const removeArgs = buildSkillsRemoveCommandArgs(
+        options.removals,
+        options.scope
       );
+      verbose(`Running npx ${removeArgs.join(' ')}`);
+      execFileSync('npx', removeArgs, {
+        cwd: options.rootDirectory,
+        stdio: 'inherit',
+      });
     }
   }
 

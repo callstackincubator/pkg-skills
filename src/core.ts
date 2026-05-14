@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 
 import lookupTableJson from './lookup-table.json' with { type: 'json' };
-import { warn } from './logger.js';
+import { warn, verbose } from './logger.js';
 
 export type Scope = 'project' | 'global';
 
@@ -198,6 +198,8 @@ export async function persistLookupTableCacheIfNeeded(): Promise<void> {
   }
 
   const { tablePath, etagPath } = getInstalledLookupPaths();
+  verbose(`Writing lookup table to ${tablePath}`);
+  verbose(`Writing lookup ETag to ${etagPath}`);
   await mkdir(dirname(tablePath), { recursive: true });
   await writeFile(
     tablePath,
@@ -842,24 +844,41 @@ export function buildSkillsRemoveCommandArgs(
 
 async function fetchRemoteLookupTable(): Promise<LookupTable> {
   const installed = await readInstalledLookupState();
+  const { tablePath, etagPath } = getInstalledLookupPaths();
   const headers: Record<string, string> = {};
+
+  verbose(`Using lookup table at ${tablePath}`);
+  verbose(
+    installed.etag
+      ? `Loaded ETag ${installed.etag} from ${etagPath}`
+      : `No ETag file at ${etagPath}`
+  );
 
   if (installed.etag) {
     headers['If-None-Match'] = installed.etag;
   }
 
   try {
+    verbose(
+      `Fetching ${REMOTE_LOOKUP_TABLE_URL}${
+        installed.etag ? ` with If-None-Match: ${installed.etag}` : ''
+      }`
+    );
     const response = await fetch(REMOTE_LOOKUP_TABLE_URL, {
       signal: AbortSignal.timeout(LOOKUP_TABLE_FETCH_TIMEOUT_MS),
       headers,
     });
 
     if (response.status === 304) {
+      verbose('Remote lookup table is unchanged (HTTP 304)');
       lookupFetchStatus = 'up-to-date';
       return installed.lookupTable;
     }
 
     if (!response.ok) {
+      verbose(
+        `Remote lookup fetch failed with HTTP ${response.status} ${response.statusText}`
+      );
       warn(
         `Failed to fetch remote lookup table: ${response.status} ${response.statusText}. Using installed lookup table instead.`
       );
@@ -882,11 +901,19 @@ async function fetchRemoteLookupTable(): Promise<LookupTable> {
         etag,
         lookupTable: payload.data,
       };
+      verbose(
+        `Fetched updated lookup table (catalogVersion ${payload.data.catalogVersion}, ETag ${etag})`
+      );
+    } else {
+      verbose(
+        `Fetched updated lookup table (catalogVersion ${payload.data.catalogVersion}) without an ETag response header`
+      );
     }
 
     lookupFetchStatus = 'updated';
     return payload.data;
   } catch (error) {
+    verbose(`Remote lookup fetch failed: ${error}`);
     warn(
       `Failed to obtain remote lookup table: ${error}. Using installed lookup table instead.`
     );

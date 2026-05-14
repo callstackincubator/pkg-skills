@@ -1,5 +1,23 @@
 import { bold, cyan, dim, green, magenta, red, yellow } from 'colorette';
 
+let verboseLoggingEnabled = false;
+
+export function setVerboseLogging(enabled: boolean): void {
+  verboseLoggingEnabled = enabled;
+}
+
+export function resetLoggingForTests(): void {
+  verboseLoggingEnabled = false;
+}
+
+export function verbose(message: string): void {
+  if (!verboseLoggingEnabled) {
+    return;
+  }
+
+  process.stdout.write(`${dim('verbose')} ${dim(message)}\n`);
+}
+
 export function printBanner(): void {
   process.stdout.write(
     bold(
