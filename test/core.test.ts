@@ -224,6 +224,24 @@ describe('scanProjectLibraries', () => {
   });
 });
 
+describe('lookup table mappings', () => {
+  it('pairs every catalog skill with at least one library', () => {
+    const lookup = getBundledLookupTable();
+    const mappedSkillRefs = new Set(
+      Object.values(lookup.libraries).flatMap((library) => library.skillRefs)
+    );
+
+    for (const [sourceRepo, source] of Object.entries(lookup.sources)) {
+      for (const skill of source.skills) {
+        expect(
+          mappedSkillRefs,
+          `${sourceRepo}:${skill.name}`
+        ).toContain(`${sourceRepo}:${skill.name}`);
+      }
+    }
+  });
+});
+
 describe('buildSkillPlan', () => {
   it('detects missing and extra pkg skills', () => {
     const plan = buildSkillPlan(
@@ -257,13 +275,19 @@ describe('buildSkillPlan', () => {
     );
 
     expect(plan.missingSkills.map((skill) => skill.name)).toEqual([
+      'agent-device',
+      'dogfood',
+      'github-actions',
+      'radon-mcp',
       'react-native-testing',
       'upgrading-react-native',
+      'vercel-composition-patterns',
+      'vercel-react-best-practices',
+      'vercel-react-view-transitions',
+      'web-design-guidelines',
     ]);
     expect(plan.extraInstalledSkills.map((skill) => skill.name)).toEqual([]);
-    expect(plan.ignoredInstalledSkills.map((skill) => skill.name)).toEqual([
-      'github',
-    ]);
+    expect(plan.ignoredInstalledSkills.map((skill) => skill.name)).toEqual([]);
   });
 
   it('marks managed but unmatched installed skills as extra', () => {
@@ -295,11 +319,10 @@ describe('buildSkillPlan', () => {
       'react-native-testing',
     ]);
     expect(plan.extraInstalledSkills.map((skill) => skill.name)).toEqual([
+      'github',
       'react-native-brownfield-migration',
     ]);
-    expect(plan.ignoredInstalledSkills.map((skill) => skill.name)).toEqual([
-      'github',
-    ]);
+    expect(plan.ignoredInstalledSkills.map((skill) => skill.name)).toEqual([]);
   });
 
   it('includes per-library declaring package.json paths on recommendations', () => {
