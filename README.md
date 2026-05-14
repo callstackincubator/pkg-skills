@@ -161,11 +161,14 @@ This tool uses the [Vercel `skills` CLI](https://vercel.com/docs/agent-resources
 
 This tool uses the following skills repositories:
 
+<!-- START:skill-repositories - do not modify -->
+
 - [Callstack Agent Skills](https://github.com/callstackincubator/agent-skills)
 - [Callstack Agent Device Skills](https://github.com/callstackincubator/agent-device)
 - [Software Mansion's Skills](https://github.com/software-mansion-labs/skills)
 - [React Native Testing Library Skills](https://github.com/callstack/react-native-testing-library)
 - [Vercel Agent Skills](https://github.com/vercel-labs/agent-skills)
+<!-- END:skill-repositories - do not modify -->
 
 ---
 

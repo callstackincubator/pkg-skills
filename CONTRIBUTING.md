@@ -48,9 +48,14 @@ To refresh the skill catalog metadata used by the lookup table:
 pnpm run sync:lookup
 ```
 
-Existing entries in the [`lookup-table.json`](src/lookup-table.json) will be kept, new ones will be added with default descriptions as in source repos - they need to be adjusted.
+This runs [`scripts/sync-lookup.mjs`](scripts/sync-lookup.mjs), which:
 
-This is run automatically by the GitHub Actions workflow [`update-vendored-skills.yml`](.github/workflows/update-vendored-skills.yml), every day at 2:19 AM UTC.
+1. Fetches skill names and descriptions from each repository listed in `remoteSources` inside that script.
+2. Updates [`src/lookup-table.json`](src/lookup-table.json) (`sources`, `lastSyncedAt`). Existing descriptions in the lookup table are preserved when a skill name is unchanged.
+3. Regenerates the skills repository list in [`README.md`](README.md) between comment markers.
+4. Appends upstream license text to [`LICENSE`](LICENSE) between the same markers, one markdown section per repository.
+
+This is run automatically by the GitHub Actions workflow [`update-vendored-skills.yml`](.github/workflows/update-vendored-skills.yml), every 2 days at 2:19 AM UTC. The workflow opens a PR.
 
 ## Runtime lookup table updates
 

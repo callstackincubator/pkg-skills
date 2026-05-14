@@ -1,6 +1,6 @@
 {
   "catalogVersion": 1,
-  "lastSyncedAt": "2026-05-14T08:42:35.797Z",
+  "lastSyncedAt": "2026-05-14T08:58:06.047Z",
   "sources": {
     "callstackincubator/agent-skills": {
       "repo": "callstackincubator/agent-skills",
@@ -44,7 +44,7 @@
     },
     "software-mansion-labs/skills": {
       "repo": "software-mansion-labs/skills",
-      "displayName": "Software Mansion Skills",
+      "displayName": "Software Mansion's Skills",
       "skills": [
         {
           "name": "expo-horizon",
@@ -117,18 +117,18 @@
     },
     "@react-navigation/native": {
       "skillRefs": [
-        "vercel-labs/agent-skills:vercel-react-native-skills"
+        "vercel-labs/agent-skills:react-native-skills"
       ]
     },
     "@react-navigation/native-stack": {
       "skillRefs": [
-        "vercel-labs/agent-skills:vercel-react-native-skills"
+        "vercel-labs/agent-skills:react-native-skills"
       ]
     },
     "@shopify/flash-list": {
       "skillRefs": [
         "callstackincubator/agent-skills:react-native-best-practices",
-        "vercel-labs/agent-skills:vercel-react-native-skills"
+        "vercel-labs/agent-skills:react-native-skills"
       ]
     },
     "@testing-library/react-native": {
@@ -139,17 +139,17 @@
     "expo": {
       "skillRefs": [
         "callstackincubator/agent-skills:react-native-best-practices",
-        "vercel-labs/agent-skills:vercel-react-native-skills"
+        "vercel-labs/agent-skills:react-native-skills"
       ]
     },
     "expo-font": {
       "skillRefs": [
-        "vercel-labs/agent-skills:vercel-react-native-skills"
+        "vercel-labs/agent-skills:react-native-skills"
       ]
     },
     "expo-image": {
       "skillRefs": [
-        "vercel-labs/agent-skills:vercel-react-native-skills"
+        "vercel-labs/agent-skills:react-native-skills"
       ]
     },
     "react-native": {
@@ -190,13 +190,13 @@
     },
     "react-native-safe-area-context": {
       "skillRefs": [
-        "vercel-labs/agent-skills:vercel-react-native-skills"
+        "vercel-labs/agent-skills:react-native-skills"
       ]
     },
     "react-native-screens": {
       "skillRefs": [
         "callstackincubator/agent-skills:react-native-best-practices",
-        "vercel-labs/agent-skills:vercel-react-native-skills"
+        "vercel-labs/agent-skills:react-native-skills"
       ]
     },
     "react-native-svg": {
