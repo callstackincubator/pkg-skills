@@ -8,7 +8,10 @@ import {
   buildSkillPlan,
   buildSkillsAddCommandArgs,
   buildSkillsRemoveCommandArgs,
+  buildSkillsUpdateCommandArgs,
   getBundledLookupTable,
+  getInstalledManagedSkillNames,
+  getInstalledRecommendedSkillNames,
   getLookupTableFetchStatus,
   getLookupTableWithOptions,
   getSkillsCliArgs,
@@ -177,6 +180,47 @@ async function run(): Promise<void> {
 
   await validateRootDirectory(options.rootDirectory);
 
+  if (options.command === 'update') {
+    if (!useQuiet) {
+      intro(`Updating skills in ${options.rootDirectory}`);
+      info(
+        'Using the Vercel Skills CLI documented at https://vercel.com/docs/agent-resources/skills'
+      );
+    }
+
+    const installedSkills = await getInstalledSkills(
+      options.scope,
+      options.rootDirectory
+    );
+    const updates = getInstalledManagedSkillNames(installedSkills, lookup);
+
+    if (!useQuiet) {
+      if (updates.length === 0) {
+        info('No managed pkg skills are installed.');
+      } else {
+        info(`Updating ${updates.join(', ')}`);
+      }
+    }
+
+    await applyChanges({
+      rootDirectory: options.rootDirectory,
+      scope: options.scope,
+      updates,
+      installs: [],
+      removals: [],
+      quiet: useQuiet,
+    });
+
+    if (!useQuiet) {
+      outro(
+        updates.length === 0
+          ? 'No updates applied.'
+          : 'Finished updating installed skills.'
+      );
+    }
+    return;
+  }
+
   if (!useQuiet) {
     intro(`Inspecting ${options.rootDirectory}`);
     info(
@@ -232,6 +276,9 @@ async function run(): Promise<void> {
     await applyChanges({
       rootDirectory: options.rootDirectory,
       scope: options.scope,
+      updates: options.dryRun
+        ? []
+        : getInstalledRecommendedSkillNames(plan, installedSkills),
       installs: plan.missingSkills.map((skill) => skill.ref),
       removals: options.remove
         ? plan.extraInstalledSkills.map((skill) => skill.name)
@@ -256,10 +303,14 @@ async function run(): Promise<void> {
   const removalNames = await askForRemovals(
     options.remove ? plan.extraInstalledSkills.map((skill) => skill.name) : []
   );
+  const updateNames = await askForUpdates(
+    getInstalledRecommendedSkillNames(plan, installedSkills)
+  );
 
   await applyChanges({
     rootDirectory: options.rootDirectory,
     scope: options.scope,
+    updates: updateNames,
     installs: installRefs,
     removals: removalNames,
     quiet: useQuiet,
@@ -459,9 +510,32 @@ async function askForRemovals(skillNames: string[]): Promise<string[]> {
   return selection;
 }
 
+async function askForUpdates(skillNames: string[]): Promise<string[]> {
+  if (skillNames.length === 0) {
+    return [];
+  }
+
+  const selection = await multiselect<string>({
+    message: 'Which installed skills should pkg-skills update?',
+    options: skillNames.map((skillName) => ({
+      value: skillName,
+      label: skillName,
+      selected: true,
+    })),
+  });
+
+  if (isCancel(selection)) {
+    cancel('Interactive update selection cancelled.');
+    process.exit(1);
+  }
+
+  return selection;
+}
+
 async function applyChanges(options: {
   rootDirectory: string;
   scope: Scope;
+  updates: string[];
   installs: string[];
   removals: string[];
   quiet: boolean;
@@ -469,11 +543,35 @@ async function applyChanges(options: {
 }): Promise<void> {
   const dryRun = options.dryRun ?? false;
 
-  if (options.installs.length === 0 && options.removals.length === 0) {
+  if (
+    options.updates.length === 0 &&
+    options.installs.length === 0 &&
+    options.removals.length === 0
+  ) {
     if (!options.quiet) {
       info(dryRun ? 'Nothing would change.' : 'Nothing to change.');
     }
     return;
+  }
+
+  if (options.updates.length > 0 && !dryRun) {
+    if (!options.quiet) {
+      info(
+        `Updating ${options.updates.join(', ')} using the Vercel Skills CLI (${dim(
+          italic('npx skills update')
+        )})`
+      );
+    }
+
+    const updateArgs = buildSkillsUpdateCommandArgs(
+      options.updates,
+      options.scope
+    );
+    verbose(`Running npx ${updateArgs.join(' ')}`);
+    execFileSync('npx', updateArgs, {
+      cwd: options.rootDirectory,
+      stdio: 'inherit',
+    });
   }
 
   for (const batch of groupInstallsBySource(options.installs)) {

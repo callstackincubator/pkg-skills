@@ -7,7 +7,12 @@ import { bold, cyan, dim, magenta, white } from 'colorette';
 
 import type { Scope } from './core.js';
 
-export type CommandName = 'auto' | 'interactive' | 'report' | 'list-supported';
+export type CommandName =
+  | 'auto'
+  | 'interactive'
+  | 'report'
+  | 'list-supported'
+  | 'update';
 
 export type CliOptions = {
   command: CommandName;
@@ -48,6 +53,7 @@ const COMMAND_CHOICES: CommandName[] = [
   'interactive',
   'report',
   'list-supported',
+  'update',
 ];
 
 const EXAMPLES_HELP = `
@@ -58,6 +64,7 @@ Examples:
   pkg-skills report --json --no-mapping-update         # machine-readable report with bundled mappings
   pkg-skills auto --global                             # apply recommendations to global skills
   pkg-skills auto --no-remove                          # install missing skills without pruning extras
+  pkg-skills update --cwd /path/to/repo                # update installed managed skills
   pkg-skills report --no-mapping-update                # report using bundled mappings only
   pkg-skills report --workspaces-only --cwd /path/to/monorepo  # scan workspace packages only
   pkg-skills list-supported --json                     # list curated mappings as JSON
@@ -94,7 +101,7 @@ export function createProgram(): Command {
     .option('--verbose', 'Print detailed lookup, scan, and apply logs')
     .option(
       '--dry-run',
-      'Show installs and removals without running the Vercel Skills CLI'
+      'Show installs and removals without running the Vercel Skills CLI (updates are skipped)'
     )
     .option('--no-banner', 'Skip the startup banner')
     .option(

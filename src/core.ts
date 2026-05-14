@@ -884,6 +884,41 @@ export function buildSkillsAddCommandArgs(
   ];
 }
 
+export function getManagedSkillNames(catalog: LookupTable): Set<string> {
+  return new Set(
+    Object.values(catalog.libraries)
+      .flatMap((library) => library.skillRefs)
+      .map((ref) => ref.split(':')[1])
+      .filter((name): name is string => Boolean(name))
+  );
+}
+
+export function getInstalledManagedSkillNames(
+  installedSkills: InstalledSkill[],
+  catalog: LookupTable = lookupTable
+): string[] {
+  const managedSkillNames = getManagedSkillNames(catalog);
+
+  return installedSkills
+    .filter((skill) => managedSkillNames.has(skill.name))
+    .map((skill) => skill.name)
+    .sort((left, right) => left.localeCompare(right));
+}
+
+export function getInstalledRecommendedSkillNames(
+  plan: SkillPlan,
+  installedSkills: InstalledSkill[]
+): string[] {
+  const recommendedNames = new Set(
+    plan.recommendedSkills.map((skill) => skill.name)
+  );
+
+  return installedSkills
+    .filter((skill) => recommendedNames.has(skill.name))
+    .map((skill) => skill.name)
+    .sort((left, right) => left.localeCompare(right));
+}
+
 export function buildSkillsRemoveCommandArgs(
   skillNames: string[],
   scope: Scope
@@ -892,6 +927,20 @@ export function buildSkillsRemoveCommandArgs(
     '-y',
     'skills',
     'remove',
+    ...skillNames,
+    '--yes',
+    ...getSkillsCliArgs(scope),
+  ];
+}
+
+export function buildSkillsUpdateCommandArgs(
+  skillNames: string[],
+  scope: Scope
+): string[] {
+  return [
+    '-y',
+    'skills',
+    'update',
     ...skillNames,
     '--yes',
     ...getSkillsCliArgs(scope),

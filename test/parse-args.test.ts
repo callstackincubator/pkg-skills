@@ -70,6 +70,14 @@ describe('parseArgs', () => {
     });
   });
 
+  it('parses update command', () => {
+    expect(parseArgs(['update', '--cwd', '/repo', '--global'])).toMatchObject({
+      command: 'update',
+      rootDirectory: '/repo',
+      scope: 'global',
+    });
+  });
+
   it('parses verbose and disables it with quiet', () => {
     expect(parseArgs(['report', '--verbose'])).toMatchObject({
       verbose: true,

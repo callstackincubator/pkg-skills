@@ -225,6 +225,66 @@ describe('pkg-skills e2e', () => {
     expect(result.exitCode).toBe(0);
   });
 
+  it('updates installed managed skills', async () => {
+    const result = await runAutoWithFixture({
+      fixtureName: 'reanimated-app',
+      installedSkills: [
+        {
+          name: 'react-native-best-practices',
+          path: '/tmp/.agents/skills/react-native-best-practices',
+          scope: 'project',
+          agents: ['Cursor'],
+        },
+      ],
+      expectedAdds: [],
+      expectedUpdates: ['react-native-best-practices'],
+      expectedRemovals: [],
+      command: ['update'],
+    });
+
+    expect(result.exitCode).toBe(0);
+  });
+
+  it('updates installed recommended skills during auto', async () => {
+    const result = await runAutoWithFixture({
+      fixtureName: 'reanimated-app',
+      installedSkills: [
+        {
+          name: 'react-native-best-practices',
+          path: '/tmp/.agents/skills/react-native-best-practices',
+          scope: 'project',
+          agents: ['Cursor'],
+        },
+      ],
+      expectedAdds: [],
+      expectedUpdates: ['react-native-best-practices'],
+      expectedRemovals: [],
+      command: ['auto'],
+    });
+
+    expect(result.exitCode).toBe(0);
+  });
+
+  it('does not update skills during auto --dry-run', async () => {
+    const result = await runAutoWithFixture({
+      fixtureName: 'reanimated-app',
+      installedSkills: [
+        {
+          name: 'react-native-best-practices',
+          path: '/tmp/.agents/skills/react-native-best-practices',
+          scope: 'project',
+          agents: ['Cursor'],
+        },
+      ],
+      expectedAdds: [],
+      expectedUpdates: [],
+      expectedRemovals: [],
+      command: ['auto', '--dry-run'],
+    });
+
+    expect(result.exitCode).toBe(0);
+  });
+
   it('prints package version for --version', () => {
     const processResult = spawnCli(['--version']);
 
@@ -471,6 +531,7 @@ async function runAutoWithFixture(options: {
   }>;
   configFiles?: Record<string, string>;
   expectedAdds: Array<[string, string]>;
+  expectedUpdates?: string[];
   expectedRemovals: string[];
   command: string[];
 }) {
@@ -520,11 +581,17 @@ async function runAutoWithFixture(options: {
 
   const invocations = JSON.parse(await readFile(logPath, 'utf8')) as string[][];
   const addInvocations = parseSkillsAddInvocations(invocations);
+  const updateInvocations = parseSkillsUpdateInvocations(invocations);
   const removeInvocations = parseSkillsRemoveInvocations(invocations);
 
   expect(addInvocations).toEqual(
     [...options.expectedAdds].sort((left, right) =>
       left.join(' ').localeCompare(right.join(' '))
+    )
+  );
+  expect(updateInvocations).toEqual(
+    [...(options.expectedUpdates ?? [])].sort((left, right) =>
+      left.localeCompare(right)
     )
   );
   expect(removeInvocations).toEqual(
@@ -558,6 +625,26 @@ function parseSkillsAddInvocations(
   return adds.sort((left, right) =>
     left.join(' ').localeCompare(right.join(' '))
   );
+}
+
+function parseSkillsUpdateInvocations(invocations: string[][]): string[] {
+  const updates: string[] = [];
+
+  for (const args of invocations) {
+    if (args[0] !== '-y' || args[1] !== 'skills' || args[2] !== 'update') {
+      continue;
+    }
+
+    for (let index = 3; index < args.length; index += 1) {
+      if (args[index].startsWith('-')) {
+        break;
+      }
+
+      updates.push(args[index]);
+    }
+  }
+
+  return updates.sort((left, right) => left.localeCompare(right));
 }
 
 function parseSkillsRemoveInvocations(invocations: string[][]): string[] {

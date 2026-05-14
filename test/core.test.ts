@@ -6,10 +6,13 @@ import {
   buildSkillPlan,
   buildSkillsAddCommandArgs,
   buildSkillsRemoveCommandArgs,
+  buildSkillsUpdateCommandArgs,
   configureLookupTablePathsForTests,
   createTempProject,
   discoverPackageJsonPaths,
   getBundledLookupTable,
+  getInstalledManagedSkillNames,
+  getInstalledRecommendedSkillNames,
   getLookupTableFetchStatus,
   getLookupTableWithOptions,
   groupInstallsBySource,
@@ -537,6 +540,63 @@ describe('buildSkillsRemoveCommandArgs', () => {
       '--yes',
       '-g',
     ]);
+  });
+});
+
+describe('buildSkillsUpdateCommandArgs', () => {
+  it('updates multiple skills in one invocation', () => {
+    expect(
+      buildSkillsUpdateCommandArgs(
+        ['react-native-best-practices', 'vercel-react-native-skills'],
+        'global'
+      )
+    ).toEqual([
+      '-y',
+      'skills',
+      'update',
+      'react-native-best-practices',
+      'vercel-react-native-skills',
+      '--yes',
+      '-g',
+    ]);
+  });
+});
+
+describe('installed skill update helpers', () => {
+  it('returns installed managed and recommended skill names', () => {
+    const lookup = getBundledLookupTable();
+    const installedSkills = [
+      {
+        name: 'react-native-best-practices',
+        path: '/repo/.agents/skills/react-native-best-practices',
+        scope: 'project',
+        agents: ['Cursor'],
+      },
+      {
+        name: 'validate-skills',
+        path: '/repo/.agents/skills/validate-skills',
+        scope: 'project',
+        agents: ['Cursor'],
+      },
+    ];
+    const plan = buildSkillPlan(
+      {
+        packageJsonPaths: ['/repo/package.json'],
+        libraries: ['react-native'],
+        librarySources: {
+          'react-native': ['/repo/package.json'],
+        },
+      },
+      installedSkills,
+      lookup
+    );
+
+    expect(getInstalledManagedSkillNames(installedSkills, lookup)).toEqual([
+      'react-native-best-practices',
+    ]);
+    expect(
+      getInstalledRecommendedSkillNames(plan, installedSkills)
+    ).toEqual(['react-native-best-practices']);
   });
 });
 

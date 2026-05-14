@@ -9,6 +9,19 @@ CLI for recommending and managing React Native agent skills from detected projec
 
 It scans every `package.json` under the target directory, compares discovered libraries against a curated lookup table, and uses the [Vercel `skills` CLI](https://vercel.com/docs/agent-resources/skills) underneath to report, install, or remove relevant skills.
 
+## Features
+
+- 🔍 **Dependency scan** — discovers libraries from every `package.json` under your project root
+- 🗺️ **Curated mappings** — links React Native packages to skills from Callstack, Software Mansion, Vercel, and more
+- 📋 **Report** — shows recommended, missing, and extra skills without changing anything
+- 🙋 **Interactive** — review the report, then pick what to update, install, or remove
+- ⚡ **Auto** — updates, installs, and prunes managed skills in one non-interactive pass
+- 🔄 **Update** — refreshes installed managed skills to their latest versions
+- 🏢 **Monorepo-ready** — workspace-only scanning, path ignores, and per-package `declared in` details
+- ⚙️ **Config files** — `.pkg-skillsignore`, `.pkg-skillspreserve`, and `.pkg-skillsdeter` for fine-grained control
+- 🤖 **CI-friendly** — `--json`, `--dry-run`, and `--no-mapping-update` for scripts and pipelines
+- 🌐 **Live catalog** — fetches the latest lookup table, with offline fallback
+
 ## Installation
 
 Run it without installing permanently:
@@ -27,18 +40,20 @@ npm i -g pkg-skills
 
 ```bash
 pkg-skills                  # interactive mode (print the report and ask which missing skills to install and which extra skills to remove)
-pkg-skills auto             # auto mode (install all missing skills and remove extra managed pkg skills without prompts)
+pkg-skills auto             # auto mode (update, install, and remove skills without prompts)
 pkg-skills report           # print detected libraries, recommended skills, missing skills, and extra managed pkg skills without changing anything
-pkg-skills interactive      # print the report and ask which missing skills to install and which extra skills to remove
+pkg-skills interactive      # print the report and ask which skills to update, install, and remove
+pkg-skills update           # update installed managed pkg skills to their latest versions
 pkg-skills list-supported   # print the curated library-to-skill mappings bundled in the lookup table
 ```
 
 What each command does:
 
 - `pkg-skills`: defaults to `interactive`
-- `interactive`: print the report and ask which missing skills to install and which extra skills to remove
-- `auto`: install all missing skills and remove extra managed pkg skills without prompts
+- `interactive`: print the report and ask which skills to update, install, and remove
+- `auto`: update installed recommended skills, install missing skills, and remove extra managed pkg skills without prompts
 - `report`: print detected libraries, recommended skills, missing skills, and extra managed pkg skills without changing anything
+- `update`: update installed managed pkg skills to their latest versions via the Vercel Skills CLI
 - `list-supported`: print the curated library-to-skill mappings bundled in the lookup table
 
 `auto` and `interactive` only remove skills managed by this CLI's lookup table. They do not remove unrelated installed skills.
@@ -53,7 +68,7 @@ These flags are supported for all commands:
 --no-remove           # Keep extra managed skills installed; only add missing skills
 --no-mapping-update   # Use the bundled local lookup table instead of fetching the latest one
 --json                # Emit machine-readable JSON (report and list-supported)
---dry-run             # Show installs and removals without running the Vercel Skills CLI
+--dry-run             # Preview installs and removals without running the Vercel Skills CLI (updates are skipped)
 --quiet               # Reduce CLI output; implies --no-banner
 --no-banner           # Skip the startup banner
 --version, -v         # Print the CLI version
@@ -63,7 +78,7 @@ These flags are supported for all commands:
 --help, -h            # Print usage
 ```
 
-`--dry-run` is useful with `auto` and `interactive` to preview installs and removals without changing installed skills.
+`--dry-run` is useful with `auto` and `interactive` to preview installs and removals without changing installed skills. Skill updates are not run in dry-run mode.
 
 `--no-remove` is useful with `auto` and `interactive` when you want recommendations and installs, but do not want the CLI to prune managed skills that are currently not needed by the detected dependencies.
 
@@ -80,6 +95,7 @@ pkg-skills report --cwd /path/to/repo
 pkg-skills report --json --no-mapping-update
 pkg-skills auto --global
 pkg-skills auto --no-remove
+pkg-skills update --cwd /path/to/repo
 pkg-skills report --no-mapping-update
 pkg-skills report --workspaces-only --cwd /path/to/monorepo
 pkg-skills list-supported --json

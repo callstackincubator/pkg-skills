@@ -25,7 +25,7 @@ if (
 if (
   args[0] === '-y' &&
   args[1] === 'skills' &&
-  (args[2] === 'add' || args[2] === 'remove')
+  (args[2] === 'add' || args[2] === 'remove' || args[2] === 'update')
 ) {
   process.exit(0);
 }
