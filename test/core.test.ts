@@ -370,7 +370,7 @@ describe('groupInstallsBySource', () => {
         'callstackincubator/agent-skills:react-native-best-practices',
         'callstackincubator/agent-skills:upgrading-react-native',
         'callstack/react-native-testing-library:react-native-testing',
-        'vercel-labs/agent-skills:vercel-react-native-skills',
+        'vercel-labs/agent-skills:react-native-skills',
       ])
     ).toEqual([
       {
@@ -383,7 +383,7 @@ describe('groupInstallsBySource', () => {
       },
       {
         sourceRepo: 'vercel-labs/agent-skills',
-        skillNames: ['vercel-react-native-skills'],
+        skillNames: ['react-native-skills'],
       },
     ]);
   });

@@ -7,6 +7,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(__dirname, '..');
 const repoRoot = path.resolve(packageRoot, '..', '..');
 const lookupPath = path.join(packageRoot, 'src', 'lookup-table.json');
+const readmePath = path.join(packageRoot, 'README.md');
+const licensePath = path.join(packageRoot, 'LICENSE');
+const SKILL_REPOSITORIES_START =
+  '<!-- START:skill-repositories - do not modify -->';
+const SKILL_REPOSITORIES_END =
+  '<!-- END:skill-repositories - do not modify -->';
+const LICENSE_FILE_CANDIDATES = ['LICENSE', 'LICENSE.md', 'LICENSE.txt'];
 
 const remoteSources = [
   {
@@ -50,8 +57,30 @@ async function main() {
   lookup.lastSyncedAt = new Date().toISOString();
   lookup.sources = nextSources;
   await writeFile(lookupPath, `${JSON.stringify(lookup, null, 2)}\n`, 'utf8');
+  await writeFile(
+    readmePath,
+    updateReadmeSkillRepositories(
+      await readFile(readmePath, 'utf8'),
+      remoteSources
+    ),
+    'utf8'
+  );
+  await writeFile(
+    licensePath,
+    replaceMarkedSection(
+      await readFile(licensePath, 'utf8'),
+      SKILL_REPOSITORIES_START,
+      SKILL_REPOSITORIES_END,
+      await buildLicenseSkillRepositoriesSection(remoteSources)
+    ),
+    'utf8'
+  );
 
   process.stdout.write(`Synced pkg-skills lookup table: ${lookupPath}\n`);
+  process.stdout.write(`Updated skill repositories in: ${readmePath}\n`);
+  process.stdout.write(
+    `Updated skill repository licenses in: ${licensePath}\n`
+  );
 }
 
 async function fetchRemoteSkills(repo) {
@@ -113,6 +142,73 @@ function preserveExistingDescriptions(lookup, repo, skills) {
     description:
       existingDescriptionsBySkillName.get(skill.name) ?? skill.description,
   }));
+}
+
+function replaceMarkedSection(contents, startMarker, endMarker, sectionBody) {
+  const startIndex = contents.indexOf(startMarker);
+  const endIndex = contents.indexOf(endMarker);
+
+  if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
+    throw new Error(`Could not find markers ${startMarker} / ${endMarker}`);
+  }
+
+  const replacement = `${startMarker}\n\n${sectionBody}\n${endMarker}`;
+
+  return (
+    contents.slice(0, startIndex) +
+    replacement +
+    contents.slice(endIndex + endMarker.length)
+  );
+}
+
+function updateReadmeSkillRepositories(readmeContents, sources) {
+  const repositoryLines = sources
+    .map(
+      (source) => `- [${source.displayName}](https://github.com/${source.repo})`
+    )
+    .join('\n');
+
+  return replaceMarkedSection(
+    readmeContents,
+    SKILL_REPOSITORIES_START,
+    SKILL_REPOSITORIES_END,
+    repositoryLines
+  );
+}
+
+async function fetchRemoteLicense(repo) {
+  for (const filename of LICENSE_FILE_CANDIDATES) {
+    const response = await fetch(
+      `https://raw.githubusercontent.com/${repo}/main/${filename}`,
+      {
+        headers: {
+          'User-Agent': 'pkg-skills-sync',
+        },
+      }
+    );
+
+    if (response.ok) {
+      return (await response.text()).trimEnd();
+    }
+  }
+
+  return null;
+}
+
+async function buildLicenseSkillRepositoriesSection(sources) {
+  const sections = [];
+
+  for (const source of sources) {
+    const repositoryLink = `https://github.com/${source.repo}`;
+    const licenseText = await fetchRemoteLicense(source.repo);
+    sections.push(
+      licenseText
+        ? `## ${source.repo}\n\n${repositoryLink}\n\n${licenseText}`
+        : `## ${source.repo}\n\n${repositoryLink}\n\n_No LICENSE file found in the repository root._`
+    );
+  }
+
+  return sections.join('\n\n');
 }
 
 function extractDescription(skillMarkdown) {
