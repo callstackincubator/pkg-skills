@@ -131,6 +131,41 @@ See which libraries and skills are included in the curated mappings:
 pkg-skills list-supported
 ```
 
+## Configuration files
+
+Place these optional files in the project root passed to `--cwd` (repository root by default):
+
+### `.pkg-skillsignore`
+
+Gitignore-style path globs, one per line. Matching directories are skipped when discovering `package.json` files. Lines starting with `#` are comments. You can also pass `--ignore <glob>` (repeatable) or `--ignore-path <file>` to use a different file.
+
+### `.pkg-skillspreserve`
+
+Skill names, one per line. Listed skills are never removed by `auto` or `interactive`, even when they are managed by pkg-skills but no longer match the detected dependencies. Lines starting with `#` are comments.
+
+### `.pkg-skillsdeter`
+
+Skill names, one per line. Listed skills are never recommended or installed, even when a detected dependency maps to them in the lookup table. Lines starting with `#` are comments.
+
+Example:
+
+```gitignore
+# .pkg-skillsignore
+experiments/**
+apps/legacy/**
+```
+
+```text
+# .pkg-skillspreserve
+github
+react-native-brownfield-migration
+```
+
+```text
+# .pkg-skillsdeter
+vercel-react-native-skills
+```
+
 ## Monorepos
 
 By default, pkg-skills recursively discovers every `package.json` under `--cwd` (except built-in skipped directories such as `node_modules`, `dist`, `ios`, and `android`) and **unions** all dependency names across those manifests. A skill is recommended if any scanned package declares a mapped library.
@@ -139,7 +174,7 @@ For large monorepos:
 
 - Use `report` to see **which `package.json` files declared each matched library** (`declared in:` lines in the human report, or `matchedLibraryDetails` / `librarySources` in `--json` output).
 - Use `--workspaces-only` to scan only packages listed in the root `package.json` `workspaces` field or `pnpm-workspace.yaml`.
-- Add a `.pkg-skillsignore` file (gitignore-style globs, one per line) or pass `--ignore <glob>` to exclude legacy apps, experiments, or tooling packages.
+- Use `.pkg-skillsignore` or `--ignore <glob>` to exclude legacy apps, experiments, or tooling packages (see [Configuration files](#configuration-files)).
 - Use `report --json` in CI to compare recommendations without parsing formatted CLI output.
 
 Example for a pnpm monorepo:

@@ -13,6 +13,8 @@ import {
   getLookupTableWithOptions,
   getSkillsCliArgs,
   groupInstallsBySource,
+  loadDeterredSkillNames,
+  loadPreservedSkillNames,
   persistLookupTableCacheIfNeeded,
   scanProjectLibraries,
   validateRootDirectory,
@@ -191,7 +193,14 @@ async function run(): Promise<void> {
     options.scope,
     options.rootDirectory
   );
-  const plan = buildSkillPlan(scan, installedSkills, lookup);
+  const [preservedSkillNames, deterredSkillNames] = await Promise.all([
+    loadPreservedSkillNames(options.rootDirectory),
+    loadDeterredSkillNames(options.rootDirectory),
+  ]);
+  const plan = buildSkillPlan(scan, installedSkills, lookup, {
+    preservedSkillNames: new Set(preservedSkillNames),
+    deterredSkillNames: new Set(deterredSkillNames),
+  });
 
   verbose(
     `Discovered ${scan.packageJsonPaths.length} package.json file(s) and ${scan.libraries.length} dependency name(s)`

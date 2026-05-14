@@ -85,6 +85,11 @@ export type ScanOptions = {
   ignorePath?: string;
 };
 
+export type SkillPlanOptions = {
+  preservedSkillNames?: Set<string>;
+  deterredSkillNames?: Set<string>;
+};
+
 type PackageManifest = {
   workspaces?: string[] | { packages?: string[] };
   dependencies?: Record<string, string>;
@@ -98,6 +103,8 @@ const REMOTE_LOOKUP_TABLE_URL =
   'https://raw.githubusercontent.com/callstackincubator/pkg-skills/refs/heads/main/src/lookup-table.json';
 const LOOKUP_TABLE_FETCH_TIMEOUT_MS = 1500;
 const DEFAULT_IGNORE_FILE = '.pkg-skillsignore';
+const DEFAULT_PRESERVE_FILE = '.pkg-skillspreserve';
+const DEFAULT_DETER_FILE = '.pkg-skillsdeter';
 
 let remoteLookupTablePromise: Promise<LookupTable> | undefined;
 let pendingLookupCache: { etag: string; lookupTable: LookupTable } | undefined;
@@ -308,6 +315,52 @@ export async function loadIgnoreGlobs(
   return globs;
 }
 
+export async function loadListedSkillNames(
+  rootDirectory: string,
+  defaultFileName: string,
+  filePath?: string
+): Promise<string[]> {
+  const listPath = filePath
+    ? resolve(rootDirectory, filePath)
+    : join(rootDirectory, defaultFileName);
+  const skillNames: string[] = [];
+
+  try {
+    await access(listPath);
+    const contents = await readFile(listPath, 'utf8');
+    for (const line of contents.split('\n')) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) {
+        continue;
+      }
+
+      skillNames.push(trimmed);
+    }
+  } catch {
+    // Optional skill list file.
+  }
+
+  return skillNames;
+}
+
+export async function loadPreservedSkillNames(
+  rootDirectory: string,
+  filePath?: string
+): Promise<string[]> {
+  return loadListedSkillNames(
+    rootDirectory,
+    DEFAULT_PRESERVE_FILE,
+    filePath
+  );
+}
+
+export async function loadDeterredSkillNames(
+  rootDirectory: string,
+  filePath?: string
+): Promise<string[]> {
+  return loadListedSkillNames(rootDirectory, DEFAULT_DETER_FILE, filePath);
+}
+
 export async function resolveWorkspaceRoots(
   rootDirectory: string
 ): Promise<string[] | undefined> {
@@ -439,7 +492,8 @@ export async function scanProjectLibraries(
 export function buildSkillPlan(
   scan: ProjectScan,
   installedSkills: InstalledSkill[],
-  catalog: LookupTable = lookupTable
+  catalog: LookupTable = lookupTable,
+  options?: SkillPlanOptions
 ): SkillPlan {
   const matchedByRef = new Map<string, Set<string>>();
 
@@ -471,7 +525,8 @@ export function buildSkillPlan(
       (left, right) =>
         left.name.localeCompare(right.name) ||
         left.sourceRepo.localeCompare(right.sourceRepo)
-    );
+    )
+    .filter((skill) => !options?.deterredSkillNames?.has(skill.name));
 
   const recommendedNames = new Set(
     recommendedSkills.map((skill) => skill.name)
@@ -493,6 +548,7 @@ export function buildSkillPlan(
         managedSkillNames.has(installed.name) &&
         !recommendedNames.has(installed.name)
     )
+    .filter((installed) => !options?.preservedSkillNames?.has(installed.name))
     .sort((left, right) => left.name.localeCompare(right.name));
   const ignoredInstalledSkills = installedSkills
     .filter((installed) => !managedSkillNames.has(installed.name))

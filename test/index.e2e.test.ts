@@ -157,6 +157,74 @@ describe('pkg-skills e2e', () => {
     expect(result.exitCode).toBe(0);
   });
 
+  it('does not remove preserved managed skills during auto', async () => {
+    const result = await runAutoWithFixture({
+      fixtureName: 'expo-app',
+      installedSkills: [
+        {
+          name: 'react-native-brownfield-migration',
+          path: '/tmp/.agents/skills/react-native-brownfield-migration',
+          scope: 'project',
+          agents: ['Cursor'],
+        },
+      ],
+      configFiles: {
+        '.pkg-skillspreserve': 'react-native-brownfield-migration\n',
+      },
+      expectedAdds: [
+        ['callstack/react-native-testing-library', 'react-native-testing'],
+        ['callstackincubator/agent-device', 'agent-device'],
+        ['callstackincubator/agent-device', 'dogfood'],
+        ['callstackincubator/agent-skills', 'github'],
+        ['callstackincubator/agent-skills', 'github-actions'],
+        ['callstackincubator/agent-skills', 'react-native-best-practices'],
+        ['callstackincubator/agent-skills', 'upgrading-react-native'],
+        ['software-mansion-labs/skills', 'radon-mcp'],
+        ['vercel-labs/agent-skills', 'deploy-to-vercel'],
+        ['vercel-labs/agent-skills', 'vercel-cli-with-tokens'],
+        ['vercel-labs/agent-skills', 'vercel-composition-patterns'],
+        ['vercel-labs/agent-skills', 'vercel-react-best-practices'],
+        ['vercel-labs/agent-skills', 'vercel-react-native-skills'],
+        ['vercel-labs/agent-skills', 'vercel-react-view-transitions'],
+        ['vercel-labs/agent-skills', 'web-design-guidelines'],
+      ],
+      expectedRemovals: [],
+      command: ['auto'],
+    });
+
+    expect(result.exitCode).toBe(0);
+  });
+
+  it('does not install deterred skills during auto', async () => {
+    const result = await runAutoWithFixture({
+      fixtureName: 'expo-app',
+      installedSkills: [],
+      configFiles: {
+        '.pkg-skillsdeter': 'vercel-react-native-skills\n',
+      },
+      expectedAdds: [
+        ['callstack/react-native-testing-library', 'react-native-testing'],
+        ['callstackincubator/agent-device', 'agent-device'],
+        ['callstackincubator/agent-device', 'dogfood'],
+        ['callstackincubator/agent-skills', 'github'],
+        ['callstackincubator/agent-skills', 'github-actions'],
+        ['callstackincubator/agent-skills', 'react-native-best-practices'],
+        ['callstackincubator/agent-skills', 'upgrading-react-native'],
+        ['software-mansion-labs/skills', 'radon-mcp'],
+        ['vercel-labs/agent-skills', 'deploy-to-vercel'],
+        ['vercel-labs/agent-skills', 'vercel-cli-with-tokens'],
+        ['vercel-labs/agent-skills', 'vercel-composition-patterns'],
+        ['vercel-labs/agent-skills', 'vercel-react-best-practices'],
+        ['vercel-labs/agent-skills', 'vercel-react-view-transitions'],
+        ['vercel-labs/agent-skills', 'web-design-guidelines'],
+      ],
+      expectedRemovals: [],
+      command: ['auto'],
+    });
+
+    expect(result.exitCode).toBe(0);
+  });
+
   it('prints package version for --version', () => {
     const processResult = spawnCli(['--version']);
 
@@ -401,6 +469,7 @@ async function runAutoWithFixture(options: {
     scope: string;
     agents: string[];
   }>;
+  configFiles?: Record<string, string>;
   expectedAdds: Array<[string, string]>;
   expectedRemovals: string[];
   command: string[];
@@ -420,6 +489,11 @@ async function runAutoWithFixture(options: {
     await readFile(fixturePath, 'utf8'),
     'utf8'
   );
+  for (const [relativePath, contents] of Object.entries(
+    options.configFiles ?? {}
+  )) {
+    await writeFile(join(projectDirectory, relativePath), contents, 'utf8');
+  }
   await writeFile(logPath, '[]\n', 'utf8');
 
   const fakeNpxPath = join(binDirectory, 'npx');

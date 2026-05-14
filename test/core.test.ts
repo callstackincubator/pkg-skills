@@ -13,6 +13,9 @@ import {
   getLookupTableFetchStatus,
   getLookupTableWithOptions,
   groupInstallsBySource,
+  loadDeterredSkillNames,
+  loadListedSkillNames,
+  loadPreservedSkillNames,
   persistLookupTableCacheIfNeeded,
   removeTempProject,
   resetRemoteLookupStateForTests,
@@ -364,6 +367,85 @@ describe('buildSkillPlan', () => {
         declaredIn: ['/repo/packages/ui/package.json'],
       },
     ]);
+  });
+
+  it('excludes deterred skills from recommendations and installs', () => {
+    const plan = buildSkillPlan(
+      {
+        packageJsonPaths: ['/repo/package.json'],
+        libraries: ['react-native'],
+        librarySources: {
+          'react-native': ['/repo/package.json'],
+        },
+      },
+      [],
+      undefined,
+      {
+        deterredSkillNames: new Set(['github', 'upgrading-react-native']),
+      }
+    );
+
+    expect(plan.recommendedSkills.map((skill) => skill.name)).not.toContain(
+      'github'
+    );
+    expect(plan.recommendedSkills.map((skill) => skill.name)).not.toContain(
+      'upgrading-react-native'
+    );
+    expect(plan.missingSkills.map((skill) => skill.name)).not.toContain(
+      'github'
+    );
+  });
+
+  it('excludes preserved skills from removable extras', () => {
+    const plan = buildSkillPlan(
+      {
+        packageJsonPaths: ['/repo/package.json'],
+        libraries: ['@testing-library/react-native'],
+        librarySources: {
+          '@testing-library/react-native': ['/repo/package.json'],
+        },
+      },
+      [
+        {
+          name: 'react-native-brownfield-migration',
+          path: '/repo/.agents/skills/react-native-brownfield-migration',
+          scope: 'project',
+          agents: ['Cursor'],
+        },
+        {
+          name: 'github',
+          path: '/repo/.agents/skills/github',
+          scope: 'project',
+          agents: ['Cursor'],
+        },
+      ],
+      undefined,
+      {
+        preservedSkillNames: new Set(['react-native-brownfield-migration']),
+      }
+    );
+
+    expect(plan.extraInstalledSkills.map((skill) => skill.name)).toEqual([
+      'github',
+    ]);
+  });
+});
+
+describe('skill list configuration files', () => {
+  it('loads skill names from optional list files', async () => {
+    const root = await createTempProject({
+      '.pkg-skillspreserve': '# keep me\ngithub\n',
+      '.pkg-skillsdeter': 'vercel-react-native-skills\n',
+    });
+    tempDirectories.push(root);
+
+    await expect(loadPreservedSkillNames(root)).resolves.toEqual(['github']);
+    await expect(loadDeterredSkillNames(root)).resolves.toEqual([
+      'vercel-react-native-skills',
+    ]);
+    await expect(
+      loadListedSkillNames(root, '.pkg-skillspreserve')
+    ).resolves.toEqual(['github']);
   });
 });
 
