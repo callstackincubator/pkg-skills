@@ -1,5 +1,15 @@
 # pkg-skills
 
+## 0.3.0
+
+### Minor Changes
+
+- [`9437783`](https://github.com/callstackincubator/pkg-skills/commit/9437783743cb439c589565c5ffc3373c30fa5698) Thanks [@artus9033](https://github.com/artus9033)! - feat: update skills command
+
+### Patch Changes
+
+- [`a35c1c3`](https://github.com/callstackincubator/pkg-skills/commit/a35c1c3e102786f5eec033f2428c0a3812d250fa) Thanks [@artus9033](https://github.com/artus9033)! - feat: support .pkg-skills{ignore,preserve} for white/blacklisting skills
+
 ## 0.2.4
 
 ### Patch Changes
