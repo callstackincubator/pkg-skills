@@ -1,5 +1,10 @@
 # pkg-skills
 
+[![CI](https://github.com/callstackincubator/pkg-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/callstackincubator/pkg-skills/actions/workflows/ci.yml)
+[![Release](https://github.com/callstackincubator/pkg-skills/actions/workflows/release.yml/badge.svg)](https://github.com/callstackincubator/pkg-skills/actions/workflows/release.yml)
+[![Update vendored skills](https://github.com/callstackincubator/pkg-skills/actions/workflows/update-vendored-skills.yml/badge.svg)](https://github.com/callstackincubator/pkg-skills/actions/workflows/update-vendored-skills.yml)
+[![npm downloads](https://img.shields.io/npm/dm/pkg-skills.svg)](https://www.npmjs.com/package/pkg-skills)
+
 CLI for recommending and managing React Native agent skills from detected project dependencies, with curated mappings for common React Native libraries.
 
 It scans every `package.json` under the target directory, compares discovered libraries against a curated lookup table, and uses the [Vercel `skills` CLI](https://vercel.com/docs/agent-resources/skills) underneath to report, install, or remove relevant skills.
