@@ -389,9 +389,7 @@ function formatDeclaredIn(paths: string[], rootDirectory: string): string {
   const overflowCount = relativePaths.length - visiblePaths.length;
   const overflowSuffix =
     overflowCount > 0
-      ? `, ${gray(
-          `+${overflowCount} ${overflowCount === 1 ? 'other' : 'others'}`
-        )}`
+      ? `, ${`+${overflowCount} ${overflowCount === 1 ? 'other' : 'others'}`}`
       : '';
 
   return `${dim(' declared in:')} ${dim(
