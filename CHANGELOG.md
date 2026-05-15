@@ -1,5 +1,11 @@
 # pkg-skills
 
+## 0.3.2
+
+### Patch Changes
+
+- [`819e29a`](https://github.com/callstackincubator/pkg-skills/commit/819e29a5c9e7145230e4ca823688ed12b78af4cc) Thanks [@artus9033](https://github.com/artus9033)! - fix: coloring of '+X others' in source explanations
+
 ## 0.3.1
 
 ### Patch Changes

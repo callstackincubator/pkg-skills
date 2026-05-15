@@ -1,6 +1,6 @@
 {
   "name": "pkg-skills",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Suggests and manages React Native agent skills based on project dependencies.",
   "type": "module",
   "author": {
