@@ -1,14 +1,18 @@
 {
   "catalogVersion": 1,
-  "lastSyncedAt": "2026-05-14T09:34:27.459Z",
+  "lastSyncedAt": "2026-09-07T07:23:23.692Z",
   "sources": {
     "callstackincubator/agent-skills": {
       "repo": "callstackincubator/agent-skills",
       "displayName": "Callstack Agent Skills",
       "skills": [
         {
-          "name": "github",
-          "description": "GitHub workflow patterns for PRs, code review, branching."
+          "name": "assess-react-native-migration",
+          "description": "Assesses whether and how an existing mobile product should migrate to React Native. Use when auditing one or more product repositories for migration readiness, including products whose iOS, Android, and other clients live in separate directories or repositories; choosing brownfield, greenfield, or a checkpoint-based path; defining a representative trial; or preparing a baseline and ROI decision before implementation. When product scope or material evidence is unavailable, grills the stakeholder with exactly one question per turn instead of sending a questionnaire."
+        },
+        {
+          "name": "create-react-native-library",
+          "description": "Scaffolds React Native libraries with create-react-native-library for standalone libraries or local native modules and views. Use when creating or working on React Native libraries or adding native functionality in an existing app."
         },
         {
           "name": "github-actions",
@@ -21,6 +25,14 @@
         {
           "name": "react-native-brownfield-migration",
           "description": "Incremental migration strategy to adopt React Native or Expo in native apps using @callstack/react-native-brownfield, with setup, packaging, and phased integration steps."
+        },
+        {
+          "name": "react-native-tv-best-practices",
+          "description": "Reviews React Native TV apps for focus/D-pad navigation, 10-foot UI layout, TV playback/DRM integration, low-memory TV performance, and TV accessibility. Use when building, debugging, or reviewing react-native-tvos, Expo TV, Amazon Vega/Kepler, or React Native web TV targets where the issue depends on remote input, TV focus, TV packaging, TV hardware, or TV playback constraints."
+        },
+        {
+          "name": "react-navigation",
+          "description": "Provides React Navigation UI patterns for stacks, tabs, drawers etc. Use when building navigation UIs with React Navigation, configuring headers, bottom sheets or handling safe areas and insets."
         },
         {
           "name": "upgrading-react-native",
@@ -37,8 +49,16 @@
           "description": "Automates Apple-platform apps (iOS, tvOS, macOS) and Android devices. Use when navigating apps, taking snapshots/screenshots, tapping, typing, scrolling, extracting UI info, collecting logs/network/perf evidence, or planning agent-device CLI commands."
         },
         {
+          "name": "android-emulator",
+          "description": "Verify and debug native, React Native, Expo, or Flutter apps on an Android Emulator with agent-device. Use when an agent needs to launch an app, inspect its live UI, tap, type, scroll, validate a code change, collect failure evidence, or reproduce a workflow on an Android virtual device."
+        },
+        {
           "name": "dogfood",
           "description": "Systematically explore and test a mobile app on iOS/Android with agent-device to find bugs, UX issues, and other problems. Use when asked to dogfood, QA, exploratory test, find issues, bug hunt, or test this app on mobile."
+        },
+        {
+          "name": "ios-simulator",
+          "description": "Verify and debug native, React Native, Expo, or Flutter apps on an iOS Simulator with agent-device. Use when an agent needs to launch an app, inspect its live UI, tap, type, scroll, validate a code change, collect failure evidence, or reproduce a workflow on an iPhone or iPad Simulator."
         }
       ]
     },
@@ -51,12 +71,32 @@
           "description": "\"Software Mansion's guide for migrating Expo SDK apps to Meta Quest using expo-horizon packages. Use when adding Meta Quest or Meta Horizon OS support to an existing Expo or React Native project. Trigger on: Meta Quest, Horizon OS, Quest 2, Quest 3, Quest 3S, VR app, expo-horizon-core, expo-horizon-location, expo-horizon-notifications, build flavors for Quest, panel sizing, VR headtracking, Horizon App ID, quest build variant, isHorizonDevice, isHorizonBuild, migrate expo-location to Quest, migrate expo-notifications to Quest, Meta Horizon Store publishing, or any task involving running an Expo app on Meta Quest hardware.\""
         },
         {
+          "name": "fishjam",
+          "description": "\"Software Mansion's Fishjam — hosted WebRTC platform for video, audio, and one-to-many livestreaming. MUST USE before writing, reviewing, or debugging ANY code that talks to a Fishjam instance from a backend (Node, Python) or a client (React web, React Native / Expo). Routes to platform fundamentals and the right SDK sub-skill. Trigger on: 'Fishjam', 'fishjam.io', 'fishjam.swmansion.com', 'fishjam dashboard', 'Fishjam ID', 'management token', 'peer token', 'sandbox API', 'livestream room', '@fishjam-cloud/js-server-sdk', 'fishjam-server-sdk', '@fishjam-cloud/react-client', '@fishjam-cloud/react-native-client', '@fishjam-cloud/ts-client', 'FishjamClient', 'FishjamProvider', 'FishjamNotifier', 'FishjamAgent', 'createPeer', 'createRoom', 'createAgent', 'createLivestreamStreamerToken', 'createMoqToken', 'refreshPeerToken', 'webhook', 'gemini fishjam', 'vapi fishjam', 'fishjam expo plugin'.\""
+        },
+        {
+          "name": "moq-kit",
+          "description": "\"Software Mansion's moq-kit — native Swift (iOS) and Kotlin (Android) SDKs for Media over QUIC (moq-lite) live streaming: sub-second-latency playback, camera/microphone/screen publishing, and realtime data tracks over a MoQ relay. MUST USE before writing, reviewing, or debugging ANY code that imports MoQKit (Swift) or com.swmansion.moqkit (Kotlin); for React Native apps use the react-native-moq skill instead. Trigger on: 'moq-kit', 'MoQKit', 'Media over QUIC', 'moq-lite', 'MoQ relay', 'moq-ffi', 'BroadcastSubscription', 'DataTrackEmitter', 'CameraCapture', 'MicrophoneCapture', 'MultiCameraCapture', 'ScreenCapture', 'TrackSubscription', 'AudioDataStream', 'MoQReplayKitBroadcastSampleHandler', or a Session/Player/Publisher/Catalog from moq-kit.\""
+        },
+        {
+          "name": "pulsar-haptics",
+          "description": "Implement, migrate, design, review, and troubleshoot haptic feedback with Software Mansion Pulsar across React Native, iOS, Android, Kotlin Multiplatform, Flutter, and Web. Use when the user names Pulsar; a Pulsar package such as react-native-pulsar, com.swmansion:pulsar, com.swmansion:pulsar-kmp, pulsar_haptics, or pulsar-haptics; a Pulsar import, preset, composer, setting, installation, migration, or runtime problem; a Figma design carrying Pulsar haptic bindings; or explicitly requests migration to Pulsar. Do not use for generic haptics, vibration, Core Haptics, browser Vibration API, expo-haptics, animation, audio, motion, or UI-polish work without Pulsar evidence or explicit Pulsar intent."
+        },
+        {
           "name": "radon-mcp",
           "description": "Best practices for using Radon IDE's MCP tools when developing, debugging, and inspecting React Native and Expo apps."
         },
         {
           "name": "react-native-best-practices",
           "description": "Software Mansion's best practices for production React Native and Expo apps on the New Architecture."
+        },
+        {
+          "name": "react-native-moq",
+          "description": "\"Software Mansion's react-native-moq — Media over QUIC (MoQ) live streaming for React Native: sub-second-latency video/audio playback, camera/mic/screen publishing, and realtime data tracks over a MoQ relay. MUST USE before writing, reviewing, or debugging ANY code that uses react-native-moq or react-native-moq-ui. Trigger on: 'react-native-moq', 'MoQ', 'Media over QUIC', 'moq relay', 'moq-kit', 'useSession', 'useBroadcasts', 'useVideoPlayer', 'useAudioPlayer', 'usePublisher', 'useCamera', 'useMultiCamera', 'useMicrophone', 'useScreenBroadcast', 'useDataTrack', 'useDataMessages', 'useAudioChunks', 'useAudioSource', 'useVideoSource', 'VideoView', 'PublisherView', 'VideoPlayerView', 'BroadcastPickerView', 'createSession', 'createPublisher', 'subscribeBroadcasts'.\""
+        },
+        {
+          "name": "rnrepo",
+          "description": "\"Best practices for integrating and using RNRepo — Software Mansion's infrastructure for pre-built React Native library artifacts that reduces native build times by up to 2×. Use when setting up, configuring, or troubleshooting RNRepo in a React Native or Expo project. Trigger on: 'RNRepo', 'rnrepo', 'slow builds', 'build times', 'prebuilt artifacts', 'prebuilt libraries', '@rnrepo/expo-config-plugin', '@rnrepo/build-tools', 'prebuilds-plugin', 'rnrepo.config.json', 'DISABLE_RNREPO', 'packages.rnrepo.org', 'Maven prebuild', 'CocoaPods prebuild', 'xcframework prebuild', 'prebuild AAR', 'build from source', 'native compilation slow', 'Gradle plugin slow', 'pod install slow', 'CI build times'.\""
         },
         {
           "name": "typegpu",
@@ -103,8 +143,16 @@
           "description": "Deploy and manage projects on Vercel using token-based authentication. Use when working with Vercel CLI using access tokens rather than interactive login — e.g. \"deploy to vercel\", \"set up vercel\", \"add environment variables to vercel\"."
         },
         {
+          "name": "vercel-optimize",
+          "description": "\"Use for Vercel cost and performance optimization on deployed projects, especially Next.js, SvelteKit, Nuxt, and limited Astro apps. Collect Vercel metrics, usage, project config, and code scan results first; investigate only metric-backed candidates; produce ranked recommendations grounded in verified files and version-aware Vercel/framework docs. Trigger for Vercel bill reduction, slow or expensive routes, caching opportunities, Function Invocations, Build Minutes, Fast Data Transfer, Core Web Vitals, Bot Management, Fluid compute, or cost breakdown requests.\""
+        },
+        {
           "name": "web-design-guidelines",
           "description": "Review UI code for Web Interface Guidelines compliance. Use when asked to \"review my UI\", \"check accessibility\", \"audit design\", \"review UX\", or \"check my site against best practices\"."
+        },
+        {
+          "name": "writing-guidelines",
+          "description": "Review docs/prose for Writing Guidelines compliance. Use when asked to \"review my docs\", \"check writing style\", \"audit prose\", \"review docs voice and tone\", or \"check this page against the writing handbook\"."
         }
       ]
     }
