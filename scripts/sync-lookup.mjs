@@ -43,8 +43,6 @@ const remoteSources = [
   },
 ];
 
-const DEFAULT_SKILLS_PATH = 'skills';
-
 async function main() {
   const lookup = JSON.parse(await readFile(lookupPath, 'utf8'));
   const nextSources = {};
@@ -56,10 +54,7 @@ async function main() {
       skills: preserveExistingDescriptions(
         lookup,
         source.repo,
-        await fetchRemoteSkills(
-          source.repo,
-          source.skillsPath ?? DEFAULT_SKILLS_PATH
-        )
+        await fetchRemoteSkills(source.repo, source.skillsPath)
       ),
     };
   }
@@ -93,7 +88,7 @@ async function main() {
   );
 }
 
-async function fetchRemoteSkills(repo, skillsPath = DEFAULT_SKILLS_PATH) {
+async function fetchRemoteSkills(repo, skillsPath = 'skills') {
   const directoryResponse = await fetch(
     `https://api.github.com/repos/${repo}/contents/${skillsPath}`,
     {
