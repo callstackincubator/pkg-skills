@@ -36,7 +36,14 @@ const remoteSources = [
     repo: 'vercel-labs/agent-skills',
     displayName: 'Vercel Agent Skills',
   },
+  {
+    repo: 'expo/skills',
+    displayName: 'Expo Skills',
+    skillsPath: 'plugins/expo/skills',
+  },
 ];
+
+const DEFAULT_SKILLS_PATH = 'skills';
 
 async function main() {
   const lookup = JSON.parse(await readFile(lookupPath, 'utf8'));
@@ -49,7 +56,10 @@ async function main() {
       skills: preserveExistingDescriptions(
         lookup,
         source.repo,
-        await fetchRemoteSkills(source.repo)
+        await fetchRemoteSkills(
+          source.repo,
+          source.skillsPath ?? DEFAULT_SKILLS_PATH
+        )
       ),
     };
   }
@@ -83,9 +93,9 @@ async function main() {
   );
 }
 
-async function fetchRemoteSkills(repo) {
+async function fetchRemoteSkills(repo, skillsPath = DEFAULT_SKILLS_PATH) {
   const directoryResponse = await fetch(
-    `https://api.github.com/repos/${repo}/contents/skills`,
+    `https://api.github.com/repos/${repo}/contents/${skillsPath}`,
     {
       headers: {
         'Accept': 'application/vnd.github+json',
@@ -108,7 +118,7 @@ async function fetchRemoteSkills(repo) {
   const skills = [];
 
   for (const directory of directories) {
-    const rawSkillUrl = `https://raw.githubusercontent.com/${repo}/main/skills/${directory}/SKILL.md`;
+    const rawSkillUrl = `https://raw.githubusercontent.com/${repo}/main/${skillsPath}/${directory}/SKILL.md`;
     const response = await fetch(rawSkillUrl, {
       headers: {
         'User-Agent': 'pkg-skills-sync',

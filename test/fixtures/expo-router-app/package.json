@@ -1,0 +1,15 @@
+{
+  "name": "expo-router-app",
+  "private": true,
+  "dependencies": {
+    "@expo/server": "^0.6.0",
+    "@expo/ui": "^0.2.0",
+    "expo-dev-client": "^6.0.0",
+    "expo-router": "^7.0.0",
+    "expo-updates": "^30.0.0",
+    "react-native-web": "^0.21.0"
+  },
+  "devDependencies": {
+    "eas-cli": "^18.0.0"
+  }
+}
