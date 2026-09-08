@@ -40,6 +40,17 @@ const remoteSources = [
     repo: 'expo/skills',
     displayName: 'Expo Skills',
     skillsPath: 'plugins/expo/skills',
+    // expo-dom and expo-web-to-native are migration guides for code that has
+    // not adopted React Native yet, so no package.json signals them.
+    // expo-app-clip covers a feature almost no app ships, and
+    // expo-skill-feedback is a feedback and telemetry channel rather than
+    // engineering guidance - both would fire on every Expo project.
+    excludedSkills: [
+      'expo-app-clip',
+      'expo-dom',
+      'expo-skill-feedback',
+      'expo-web-to-native',
+    ],
   },
 ];
 
@@ -54,7 +65,10 @@ async function main() {
       skills: preserveExistingDescriptions(
         lookup,
         source.repo,
-        await fetchRemoteSkills(source.repo, source.skillsPath)
+        excludeSkills(
+          await fetchRemoteSkills(source.repo, source.skillsPath),
+          source.excludedSkills
+        )
       ),
     };
   }
@@ -132,6 +146,14 @@ async function fetchRemoteSkills(repo, skillsPath = 'skills') {
   }
 
   return skills;
+}
+
+function excludeSkills(skills, excludedSkills) {
+  if (!excludedSkills?.length) {
+    return skills;
+  }
+
+  return skills.filter((skill) => !excludedSkills.includes(skill.name));
 }
 
 function preserveExistingDescriptions(lookup, repo, skills) {
@@ -267,7 +289,7 @@ function extractDescription(skillMarkdown) {
       inlineValue !== '>-' &&
       inlineValue !== '|-'
     ) {
-      return inlineValue;
+      return stripSurroundingQuotes(inlineValue);
     }
 
     const descriptionLines = [];
@@ -288,6 +310,17 @@ function extractDescription(skillMarkdown) {
   }
 
   return '';
+}
+
+// YAML requires quoting a scalar that contains ': ', so some descriptions
+// arrive wrapped in delimiters that are not part of the text.
+function stripSurroundingQuotes(value) {
+  const quote = value[0];
+  if ((quote !== '"' && quote !== "'") || value.length < 2) {
+    return value;
+  }
+
+  return value.endsWith(quote) ? value.slice(1, -1) : value;
 }
 
 await main();
