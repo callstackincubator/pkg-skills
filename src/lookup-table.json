@@ -48,7 +48,7 @@
       "skills": [
         {
           "name": "expo-horizon",
-          "description": "\"Software Mansion's guide for migrating Expo SDK apps to Meta Quest using expo-horizon packages. Use when adding Meta Quest or Meta Horizon OS support to an existing Expo or React Native project. Trigger on: Meta Quest, Horizon OS, Quest 2, Quest 3, Quest 3S, VR app, expo-horizon-core, expo-horizon-location, expo-horizon-notifications, build flavors for Quest, panel sizing, VR headtracking, Horizon App ID, quest build variant, isHorizonDevice, isHorizonBuild, migrate expo-location to Quest, migrate expo-notifications to Quest, Meta Horizon Store publishing, or any task involving running an Expo app on Meta Quest hardware.\""
+          "description": "Software Mansion's guide for migrating Expo SDK apps to Meta Quest using expo-horizon packages. Use when adding Meta Quest or Meta Horizon OS support to an existing Expo or React Native project. Trigger on: Meta Quest, Horizon OS, Quest 2, Quest 3, Quest 3S, VR app, expo-horizon-core, expo-horizon-location, expo-horizon-notifications, build flavors for Quest, panel sizing, VR headtracking, Horizon App ID, quest build variant, isHorizonDevice, isHorizonBuild, migrate expo-location to Quest, migrate expo-notifications to Quest, Meta Horizon Store publishing, or any task involving running an Expo app on Meta Quest hardware."
         },
         {
           "name": "radon-mcp",
@@ -107,12 +107,104 @@
           "description": "Review UI code for Web Interface Guidelines compliance. Use when asked to \"review my UI\", \"check accessibility\", \"audit design\", \"review UX\", or \"check my site against best practices\"."
         }
       ]
+    },
+    "expo/skills": {
+      "repo": "expo/skills",
+      "displayName": "Expo Skills",
+      "skills": [
+        {
+          "name": "eas-app-stores",
+          "description": "EAS service (paid). Deploy Expo apps to the app stores with EAS - build and submit to the iOS App Store, Google Play Store, and TestFlight, configure eas.json build and submit profiles, manage app versions and build numbers, and publish App Store metadata and ASO. Use whenever the user wants to deploy, release, or ship an app to production or the app stores, is preparing a production build, running eas build or eas submit, shipping to TestFlight, bumping version or build numbers, or setting up store listing metadata. For deploying an Expo website or API routes, use the eas-hosting skill."
+        },
+        {
+          "name": "eas-hosting",
+          "description": "EAS service (paid). Deploy Expo websites and Expo Router API routes to EAS Hosting - export the web bundle, run eas deploy for production and PR preview URLs, manage environment secrets and custom domains, and work within the Cloudflare Workers runtime. Also covers authoring API routes (+api.ts handlers, HTTP methods, request handling, CORS). Use when deploying an Expo web app or API routes, setting up EAS Hosting, or configuring hosting environments and domains. Not for native builds or store releases - use the eas-app-stores skill for those."
+        },
+        {
+          "name": "eas-observe",
+          "description": "EAS service (paid). Use for anything related to EAS Observe - adding `expo-observe` to an Expo project (AppMetricsRoot/ObserveRoot HOC, markInteractive and ObserveInteractiveMarker, the useObserve hook, the Expo Router / React Navigation integrations for per-route metrics, user-defined events via `Observe.logEvent`, error reporting via ObserveErrorBoundary and `Observe.reportError`, and runtime config such as sampleRate and dispatchInDebug), querying via the EAS CLI (`eas observe:metrics-summary`, `observe:metrics`, `observe:routes`, `observe:events`, `observe:session`, `observe:versions`), interpreting the resulting metrics (cold/warm launch, TTR, TTI, navigation cold/warm TTR, update download, and the TTI frameRate/device/network params for triaging slow startups), or shipping an Observe integration inside a third-party package."
+        },
+        {
+          "name": "eas-simulator",
+          "description": "EAS service (paid). Run and control a user's app on a remote iOS/Android simulator hosted on EAS cloud. Read before running any `eas simulator:*` commands - it has the current syntax for this experimental API. Use whenever the user needs a simulator they can't run locally - 'run my app on a cloud simulator', 'use eas simulator to run/install/screenshot my app', 'I'm on Linux/Cursor and need an iOS device', 'no sim on this box / headless CI', 'let an agent click through my app and screenshot it', 'test my dev build on a remote sim with live reload', 'stream a sim to my browser' - even when they don't say 'EAS Simulator' or 'cloud'. On a host WITHOUT a local simulator (Linux, CI, cloud sandbox) it's the default; on macOS, do NOT auto-trigger for a plain 'run on the simulator' - use it only for a cloud/remote/shareable sim, an iOS version they lack, or an agent-driven session. NOT for local sims (expo run:ios, Xcode, Android Studio), EAS Build/Update, web preview, or physical devices."
+        },
+        {
+          "name": "eas-update-insights",
+          "description": "EAS service (paid). Check the health of published EAS Update: crash rates, install/launch counts, unique users, payload size, and the split between embedded and OTA users per channel. Use when the user asks how an update is performing, whether a rollout is healthy, how many users are on the embedded build vs OTA, or wants to gate CI on update health."
+        },
+        {
+          "name": "eas-workflows",
+          "description": "EAS service (paid). Helps understand and write EAS workflow YAML files for Expo projects. Use this skill when the user asks about CI/CD or workflows in an Expo or EAS context, mentions .eas/workflows/, or wants help with EAS build pipelines or deployment automation."
+        },
+        {
+          "name": "expo-animation",
+          "description": "Framework (OSS). Build animations in React Native and Expo, making the decisions in the order that determines whether they feel right — should it animate, which thread it runs on, which properties, spring or timing, how the gesture hands off, how it degrades. Writes the implementation with Reanimated, Gesture Handler, Expo Router and expo-haptics. Use when animating anything in an Expo app, adding gestures, sheets, screen transitions, press feedback or haptics, or fixing motion that stutters on device. For web animation use `animate`."
+        },
+        {
+          "name": "expo-brownfield",
+          "description": "Framework (OSS). Integrate Expo and React Native into an existing native iOS or Android app. Use when the user mentions brownfield, embedding React Native in a native app, AAR/XCFramework, or adding Expo to an existing Kotlin/Swift project. Covers both the isolated approach and the integrated approach."
+        },
+        {
+          "name": "expo-data-fetching",
+          "description": "Framework (OSS). Use when implementing or debugging ANY network request, API call, or data fetching. Covers fetch API, React Query, SWR, error handling, caching, offline support, and Expo Router data loaders (`useLoaderData`)."
+        },
+        {
+          "name": "expo-design-system",
+          "description": "Framework (OSS). Build and maintain a design system inside an Expo app - a reusable theme of design tokens (color, spacing, typography, radius, shadow, motion), reusable component structure with variant/size/state prop conventions, and rules for when to extract a repeated view into a shared component. Use when creating or organizing theme files and design tokens (theme.ts / theme/), extending an existing theme or styling library (NativeWind, Tamagui, Restyle, Unistyles) in its own idiom, standardizing styles so screens (including AI-generated ones) look consistent and polished, building an in-app component library, or auditing an app for design-system drift (hardcoded colors, spacing, fonts). For platform styling specifics (semantic colors, HIG rules, native controls) use expo-native-ui; for folder layout of a new app use expo-project-structure."
+        },
+        {
+          "name": "expo-dev-client",
+          "description": "Framework (OSS). Build and distribute Expo development clients locally or via TestFlight for internal testing. For production TestFlight releases and store submission, use the eas-app-stores skill."
+        },
+        {
+          "name": "expo-examples",
+          "description": "Framework (OSS). Expo's official example projects - the expo/examples repo of ~70 `with-*` integrations (Stripe, Clerk, Supabase, OpenAI, maps, Reanimated, SQLite, Skia, NativeWind, and more). Use when integrating a third-party library or service into an existing Expo app and you want the canonical, version-matched pattern to adapt, or when scaffolding a new project from one with `npx create-expo --example`."
+        },
+        {
+          "name": "expo-module",
+          "description": "Framework (OSS). Guide for creating and writing Expo native modules and views using the Expo Modules API (Swift, Kotlin, TypeScript). Covers module definition DSL, native views, shared objects, config plugins, lifecycle hooks, autolinking, and type system. Use when building or modifying native modules for Expo. Not for migrating an existing Swift module from the definition DSL to the Expo Modules API 2.0 macros; use expo-migrate-module (from the expo-experiments plugin) for that."
+        },
+        {
+          "name": "expo-native-ui",
+          "description": "Framework (OSS). Build beautiful, native-feeling Expo screens. Covers Apple HIG styling, semantic colors, native controls, SF Symbols, media, animations, visual effects, gradients, storage, and responsive layout. For routing and navigation, use the expo-router skill."
+        },
+        {
+          "name": "expo-overview",
+          "description": "Framework (OSS). Entry point and router for every Expo or EAS task. Load this skill first — before writing code and before choosing another expo-* / eas-* skill — when the request, PRD, or spec mentions Expo, EAS, Expo Go, or an expo-* package, or the project has an `expo` dependency in `package.json`. Within that gate it also covers app specs and designs to implement (tabs, stacks, maps, lists, navigation, building from a screenshot), and phrasings like 'implement a mobile app', 'make my app look native', 'add navigation', 'fetch some data', 'upgrade my SDK', 'add Expo to my existing native app', 'ship to the App Store', or 'I'm new to Expo, where do I start'. A fully specified request (SDK pinned, libraries named, layout given) still routes through here — the shared setup rules still apply. Do NOT load it when neither signal is present: a bare React Native project with no `expo` dependency is not Expo work. Detects the real goal, routes to the right expo-* / eas-* skill, and owns the shared setup rules."
+        },
+        {
+          "name": "expo-project-structure",
+          "description": "Framework (OSS). Folder structure for a new Expo app. Use when scaffolding or laying out a new Expo project with Expo Router, or deciding where a file should live in one. For new projects only — never restructure an existing app to match."
+        },
+        {
+          "name": "expo-router",
+          "description": "Framework (OSS). Navigation and routing for Expo Router. Covers file-based routes, groups and dynamic routes, folder organization, Link with previews and context menus, native Stack, page titles, modals and form sheets, NativeTabs, headers and toolbars, and header search bars."
+        },
+        {
+          "name": "expo-ui",
+          "description": "Framework (OSS). Build native UI with the @expo/ui package: real SwiftUI on iOS and Jetpack Compose on Android. Default to @expo/ui for sheets (BottomSheet), pickers, sliders, toggles, menus, and grouped-form sections — do NOT reach for Reanimated, @gorhom/bottom-sheet, or RN built-in Picker/Switch; use @expo/ui instead. Fall back to RN built-ins only when @expo/ui is missing the component. NOTE: @expo/ui List renders native grouped rows like an iOS Settings screen — it is NOT a virtualized list; use FlatList/FlashList for large datasets. Covers universal components (Host, Column, Row, Button, Text, List, BottomSheet, FieldGroup, Switch, Slider, Picker, Menu), drop-in replacements for RN community libraries, and platform-specific SwiftUI/Jetpack Compose trees. Not for Expo Router navigation, Reanimated, or data fetching."
+        },
+        {
+          "name": "expo-upgrade",
+          "description": "Framework (OSS). Guidelines for upgrading Expo SDK versions and fixing dependency issues"
+        }
+      ]
     }
   },
   "libraries": {
     "@callstack/react-native-brownfield": {
       "skillRefs": [
         "callstackincubator/agent-skills:react-native-brownfield-migration"
+      ]
+    },
+    "@expo/server": {
+      "skillRefs": [
+        "expo/skills:eas-hosting"
+      ]
+    },
+    "@expo/ui": {
+      "skillRefs": [
+        "expo/skills:expo-ui"
       ]
     },
     "@react-navigation/native": {
@@ -136,12 +228,33 @@
         "callstack/react-native-testing-library:react-native-testing"
       ]
     },
+    "eas-cli": {
+      "skillRefs": [
+        "expo/skills:eas-app-stores",
+        "expo/skills:eas-simulator",
+        "expo/skills:eas-workflows"
+      ]
+    },
     "expo": {
       "skillRefs": [
         "callstackincubator/agent-skills:react-native-best-practices",
+        "expo/skills:expo-animation",
+        "expo/skills:expo-brownfield",
+        "expo/skills:expo-data-fetching",
+        "expo/skills:expo-design-system",
+        "expo/skills:expo-examples",
+        "expo/skills:expo-native-ui",
+        "expo/skills:expo-overview",
+        "expo/skills:expo-project-structure",
+        "expo/skills:expo-upgrade",
         "vercel-labs/agent-skills:deploy-to-vercel",
         "vercel-labs/agent-skills:vercel-cli-with-tokens",
         "vercel-labs/agent-skills:vercel-react-native-skills"
+      ]
+    },
+    "expo-dev-client": {
+      "skillRefs": [
+        "expo/skills:expo-dev-client"
       ]
     },
     "expo-font": {
@@ -157,6 +270,31 @@
     "expo-image": {
       "skillRefs": [
         "vercel-labs/agent-skills:vercel-react-native-skills"
+      ]
+    },
+    "expo-module-scripts": {
+      "skillRefs": [
+        "expo/skills:expo-module"
+      ]
+    },
+    "expo-modules-core": {
+      "skillRefs": [
+        "expo/skills:expo-module"
+      ]
+    },
+    "expo-observe": {
+      "skillRefs": [
+        "expo/skills:eas-observe"
+      ]
+    },
+    "expo-router": {
+      "skillRefs": [
+        "expo/skills:expo-router"
+      ]
+    },
+    "expo-updates": {
+      "skillRefs": [
+        "expo/skills:eas-update-insights"
       ]
     },
     "react-native": {

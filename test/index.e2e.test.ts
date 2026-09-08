@@ -74,7 +74,7 @@ describe('pkg-skills e2e', () => {
     expect(stdout).toContain('react-native-reanimated');
   });
 
-  it('adds the expected Callstack, Vercel, and testing skills for expo-app', async () => {
+  it('adds the expected Callstack, Expo, Vercel, and testing skills for expo-app', async () => {
     const result = await runAutoWithFixture({
       fixtureName: 'expo-app',
       installedSkills: [],
@@ -86,6 +86,15 @@ describe('pkg-skills e2e', () => {
         ['callstackincubator/agent-skills', 'github-actions'],
         ['callstackincubator/agent-skills', 'react-native-best-practices'],
         ['callstackincubator/agent-skills', 'upgrading-react-native'],
+        ['expo/skills', 'expo-animation'],
+        ['expo/skills', 'expo-brownfield'],
+        ['expo/skills', 'expo-data-fetching'],
+        ['expo/skills', 'expo-design-system'],
+        ['expo/skills', 'expo-examples'],
+        ['expo/skills', 'expo-native-ui'],
+        ['expo/skills', 'expo-overview'],
+        ['expo/skills', 'expo-project-structure'],
+        ['expo/skills', 'expo-upgrade'],
         ['software-mansion-labs/skills', 'radon-mcp'],
         ['vercel-labs/agent-skills', 'deploy-to-vercel'],
         ['vercel-labs/agent-skills', 'vercel-cli-with-tokens'],
@@ -94,6 +103,27 @@ describe('pkg-skills e2e', () => {
         ['vercel-labs/agent-skills', 'vercel-react-native-skills'],
         ['vercel-labs/agent-skills', 'vercel-react-view-transitions'],
         ['vercel-labs/agent-skills', 'web-design-guidelines'],
+      ],
+      expectedRemovals: [],
+      command: ['auto'],
+    });
+
+    expect(result.exitCode).toBe(0);
+  });
+
+  it('adds the Expo skills for expo-router-app', async () => {
+    const result = await runAutoWithFixture({
+      fixtureName: 'expo-router-app',
+      installedSkills: [],
+      expectedAdds: [
+        ['expo/skills', 'eas-app-stores'],
+        ['expo/skills', 'eas-hosting'],
+        ['expo/skills', 'eas-simulator'],
+        ['expo/skills', 'eas-update-insights'],
+        ['expo/skills', 'eas-workflows'],
+        ['expo/skills', 'expo-dev-client'],
+        ['expo/skills', 'expo-router'],
+        ['expo/skills', 'expo-ui'],
       ],
       expectedRemovals: [],
       command: ['auto'],
@@ -179,6 +209,15 @@ describe('pkg-skills e2e', () => {
         ['callstackincubator/agent-skills', 'github-actions'],
         ['callstackincubator/agent-skills', 'react-native-best-practices'],
         ['callstackincubator/agent-skills', 'upgrading-react-native'],
+        ['expo/skills', 'expo-animation'],
+        ['expo/skills', 'expo-brownfield'],
+        ['expo/skills', 'expo-data-fetching'],
+        ['expo/skills', 'expo-design-system'],
+        ['expo/skills', 'expo-examples'],
+        ['expo/skills', 'expo-native-ui'],
+        ['expo/skills', 'expo-overview'],
+        ['expo/skills', 'expo-project-structure'],
+        ['expo/skills', 'expo-upgrade'],
         ['software-mansion-labs/skills', 'radon-mcp'],
         ['vercel-labs/agent-skills', 'deploy-to-vercel'],
         ['vercel-labs/agent-skills', 'vercel-cli-with-tokens'],
@@ -210,6 +249,15 @@ describe('pkg-skills e2e', () => {
         ['callstackincubator/agent-skills', 'github-actions'],
         ['callstackincubator/agent-skills', 'react-native-best-practices'],
         ['callstackincubator/agent-skills', 'upgrading-react-native'],
+        ['expo/skills', 'expo-animation'],
+        ['expo/skills', 'expo-brownfield'],
+        ['expo/skills', 'expo-data-fetching'],
+        ['expo/skills', 'expo-design-system'],
+        ['expo/skills', 'expo-examples'],
+        ['expo/skills', 'expo-native-ui'],
+        ['expo/skills', 'expo-overview'],
+        ['expo/skills', 'expo-project-structure'],
+        ['expo/skills', 'expo-upgrade'],
         ['software-mansion-labs/skills', 'radon-mcp'],
         ['vercel-labs/agent-skills', 'deploy-to-vercel'],
         ['vercel-labs/agent-skills', 'vercel-cli-with-tokens'],
@@ -490,6 +538,15 @@ describe('pkg-skills e2e', () => {
         ['callstackincubator/agent-skills', 'github-actions'],
         ['callstackincubator/agent-skills', 'react-native-best-practices'],
         ['callstackincubator/agent-skills', 'upgrading-react-native'],
+        ['expo/skills', 'expo-animation'],
+        ['expo/skills', 'expo-brownfield'],
+        ['expo/skills', 'expo-data-fetching'],
+        ['expo/skills', 'expo-design-system'],
+        ['expo/skills', 'expo-examples'],
+        ['expo/skills', 'expo-native-ui'],
+        ['expo/skills', 'expo-overview'],
+        ['expo/skills', 'expo-project-structure'],
+        ['expo/skills', 'expo-upgrade'],
         ['software-mansion-labs/skills', 'radon-mcp'],
         ['vercel-labs/agent-skills', 'deploy-to-vercel'],
         ['vercel-labs/agent-skills', 'vercel-cli-with-tokens'],

@@ -36,6 +36,22 @@ const remoteSources = [
     repo: 'vercel-labs/agent-skills',
     displayName: 'Vercel Agent Skills',
   },
+  {
+    repo: 'expo/skills',
+    displayName: 'Expo Skills',
+    skillsPath: 'plugins/expo/skills',
+    // expo-dom and expo-web-to-native are migration guides for code that has
+    // not adopted React Native yet, so no package.json signals them.
+    // expo-app-clip covers a feature almost no app ships, and
+    // expo-skill-feedback is a feedback and telemetry channel rather than
+    // engineering guidance - both would fire on every Expo project.
+    excludedSkills: [
+      'expo-app-clip',
+      'expo-dom',
+      'expo-skill-feedback',
+      'expo-web-to-native',
+    ],
+  },
 ];
 
 async function main() {
@@ -49,7 +65,10 @@ async function main() {
       skills: preserveExistingDescriptions(
         lookup,
         source.repo,
-        await fetchRemoteSkills(source.repo)
+        excludeSkills(
+          await fetchRemoteSkills(source.repo, source.skillsPath),
+          source.excludedSkills
+        )
       ),
     };
   }
@@ -83,9 +102,9 @@ async function main() {
   );
 }
 
-async function fetchRemoteSkills(repo) {
+async function fetchRemoteSkills(repo, skillsPath = 'skills') {
   const directoryResponse = await fetch(
-    `https://api.github.com/repos/${repo}/contents/skills`,
+    `https://api.github.com/repos/${repo}/contents/${skillsPath}`,
     {
       headers: {
         'Accept': 'application/vnd.github+json',
@@ -108,7 +127,7 @@ async function fetchRemoteSkills(repo) {
   const skills = [];
 
   for (const directory of directories) {
-    const rawSkillUrl = `https://raw.githubusercontent.com/${repo}/main/skills/${directory}/SKILL.md`;
+    const rawSkillUrl = `https://raw.githubusercontent.com/${repo}/main/${skillsPath}/${directory}/SKILL.md`;
     const response = await fetch(rawSkillUrl, {
       headers: {
         'User-Agent': 'pkg-skills-sync',
@@ -127,6 +146,14 @@ async function fetchRemoteSkills(repo) {
   }
 
   return skills;
+}
+
+function excludeSkills(skills, excludedSkills) {
+  if (!excludedSkills?.length) {
+    return skills;
+  }
+
+  return skills.filter((skill) => !excludedSkills.includes(skill.name));
 }
 
 function preserveExistingDescriptions(lookup, repo, skills) {
@@ -262,7 +289,7 @@ function extractDescription(skillMarkdown) {
       inlineValue !== '>-' &&
       inlineValue !== '|-'
     ) {
-      return inlineValue;
+      return stripSurroundingQuotes(inlineValue);
     }
 
     const descriptionLines = [];
@@ -283,6 +310,17 @@ function extractDescription(skillMarkdown) {
   }
 
   return '';
+}
+
+// YAML requires quoting a scalar that contains ': ', so some descriptions
+// arrive wrapped in delimiters that are not part of the text.
+function stripSurroundingQuotes(value) {
+  const quote = value[0];
+  if ((quote !== '"' && quote !== "'") || value.length < 2) {
+    return value;
+  }
+
+  return value.endsWith(quote) ? value.slice(1, -1) : value;
 }
 
 await main();

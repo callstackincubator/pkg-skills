@@ -12,7 +12,7 @@ It scans every `package.json` under the target directory, compares discovered li
 ## Features
 
 - 🔍 **Dependency scan** — discovers libraries from every `package.json` under your project root
-- 🗺️ **Curated mappings** — links React Native packages to skills from Callstack, Software Mansion, Vercel, and more
+- 🗺️ **Curated mappings** — links React Native packages to skills from Callstack, Expo, Software Mansion, Vercel, and more
 - 📋 **Report** — shows recommended, missing, and extra skills without changing anything
 - 🙋 **Interactive** — choose action groups (update, install, remove), then pick skills in each
 - ⚡ **Auto** — updates, installs, and prunes managed skills in one non-interactive pass
@@ -219,6 +219,7 @@ This tool uses the following skills repositories:
 - [Software Mansion's Skills](https://github.com/software-mansion-labs/skills)
 - [React Native Testing Library Skills](https://github.com/callstack/react-native-testing-library)
 - [Vercel Agent Skills](https://github.com/vercel-labs/agent-skills)
+- [Expo Skills](https://github.com/expo/skills)
 <!-- END:skill-repositories - do not modify -->
 
 ## Special Thanks
